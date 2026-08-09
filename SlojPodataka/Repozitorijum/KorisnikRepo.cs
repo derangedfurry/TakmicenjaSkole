@@ -1,5 +1,6 @@
 ﻿
 using BibliotekaKlasa.TehnoloskeKlase;
+using BibliotekaKlasa.TehnoloskeKlase.PomocneFunkcije;
 using SlojPodataka.Kontekst;
 using SlojPodataka.Model;
 using System;
@@ -40,7 +41,15 @@ namespace SlojPodataka.Repozitorijum
             var korisnik = kontekst.KorisnikModelObjektiDBSet.Find(korisnikModel.ID);
             if (korisnik == null) return;
             korisnik.KorisnickoIme = korisnikModel.KorisnickoIme;
-           // korisnik.Lozinka = korisnikModel.Lozinka;
+
+            if(korisnik.PasswordHash != korisnikModel.PasswordHash || korisnik.PasswordSalt != korisnikModel.PasswordSalt)
+            {
+                korisnik.PasswordHash = korisnikModel.PasswordHash;
+                korisnik.PasswordSalt = korisnikModel.PasswordSalt;
+            }
+
+            kontekst.KorisnikModelObjektiDBSet.Update(korisnik);
+
             kontekst.SaveChanges();
         }
 
@@ -49,12 +58,29 @@ namespace SlojPodataka.Repozitorijum
             return kontekst.KorisnikModelObjektiDBSet.ToList();
         }
 
-        /*public KorisnikModel DajKorisnikaPoEmailuISifri(string email, string sifra)
+        public KorisnikModel DajKorisnikaPoEmailuISifri(string email, string sifra)
         {
-            return kontekst.KorisnikModelObjektiDBSet.FirstOrDefault(k => k.KorisnickoIme == email && k. == sifra);
-        }*/
+            if (!DaLiPostojiKorisnikSaEmailom(email))
+                return null;
 
+            KorisnikModel korisnik = kontekst.KorisnikModelObjektiDBSet.First(k => k.Email == email);
 
+                bool provera = FunkcijeLozinke.ProveriLozinku(sifra, korisnik.PasswordSalt.ToString(), korisnik.PasswordHash.ToString());
+
+                if (provera)
+                {
+                    return korisnik;
+                }
+                else
+                {
+                    return null;
+                }
+        }
+
+        public bool DaLiPostojiKorisnikSaEmailom(string email)
+        {
+            return kontekst.KorisnikModelObjektiDBSet.Any(k => k.Email == email);
+        }
 
     }
 }

@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace SlojPodataka.Repozitorijum
 {
-    public class DiplomaRepo
+    public class DiplomaRepo : TabelaKlasa
     {
         private KonekcijaKlasa konekcija {get; set; }
 
-        public DiplomaRepo(KonekcijaKlasa konekcija)
+        public DiplomaRepo(KonekcijaKlasa konekcija) : base(konekcija, "Diploma")
         {
             this.konekcija = konekcija;
         }

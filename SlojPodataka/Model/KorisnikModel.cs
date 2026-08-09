@@ -33,14 +33,16 @@ namespace SlojPodataka.Model
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        public Guid PasswordSalt { get; set; }
+        [Column(TypeName = "binary(64)")]
+        public byte[] PasswordSalt { get; set; } = Array.Empty<byte>();
 
         [Required]
         [Column(TypeName = "binary(64)")]
         public byte[] PasswordHash { get; set; } = Array.Empty<byte>();
 
         [Required]
-        public int Uloga { get; set; }
+        [StringLength(10)]
+        public string Uloga { get; set; } = "Korisnik";
 
     }
 }
