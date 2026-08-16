@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Nagrade>
+  <Nagrada>
+    <Broj>1</Broj>
+    <Naziv>Prva nagrada</Naziv>
+    <Maksimum>100</Maksimum>
+    <Minimum>91</Minimum>
+  </Nagrada>
+  <Nagrada>
+    <Broj>2</Broj>
+    <Naziv>Druga nagrada</Naziv>
+    <Maksimum>90</Maksimum>
+    <Minimum>75</Minimum>
+  </Nagrada>
+  <Nagrada>
+    <Broj>3</Broj>
+    <Naziv>Treća nagrada</Naziv>
+    <Maksimum>74</Maksimum>
+    <Minimum>50</Minimum>
+  </Nagrada>
+  <Nagrada>
+    <Broj>4</Broj>
+    <Naziv>Pohvalnica</Naziv>
+  </Nagrada>
+</Nagrade>
