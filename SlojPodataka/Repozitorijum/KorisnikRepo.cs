@@ -58,7 +58,7 @@ namespace SlojPodataka.Repozitorijum
             return kontekst.KorisnikModelObjektiDBSet.ToList();
         }
 
-        public KorisnikModel DajKorisnikaPoEmailuISifri(string email, string sifra)
+        /*public KorisnikModel DajKorisnikaPoEmailuISifri(string email, string sifra)
         {
             if (!DaLiPostojiKorisnikSaEmailom(email))
                 return null;
@@ -75,7 +75,7 @@ namespace SlojPodataka.Repozitorijum
                 {
                     return null;
                 }
-        }
+        }*/
 
         public bool DaLiPostojiKorisnikSaEmailom(string email)
         {

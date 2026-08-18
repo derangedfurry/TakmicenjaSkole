@@ -151,5 +151,24 @@ namespace SlojServisa.Controllers
         {
             return _context.UcenikModelObjektiDBSet.Any(e => e.ID == id);
         }
+
+        [HttpGet("PoTakmicenju/{id}")]
+        public async Task<IActionResult> DajPoTakmicenjuId(int id)
+        {
+            List<UcenikViewModel> ucenici = await _context.UcenikModelObjektiDBSet
+                .Where(u => u.IDTakmicenja == id)
+                .Select(u => new UcenikViewModel
+                {
+                    ID = u.ID,
+                    SifraUcenika = u.SifraUcenika,
+                    Ime = u.Ime,
+                    Prezime = u.Prezime,
+                    BrojBodova = u.BrojBodova,
+                    IDTakmicenja = u.IDTakmicenja
+                })
+                .ToListAsync();
+
+            return Ok(ucenici);
+        }
     }
 }

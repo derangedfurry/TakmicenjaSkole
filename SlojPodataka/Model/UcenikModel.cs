@@ -16,6 +16,11 @@ namespace SlojPodataka.Model
         public int ID { get; set; }
 
         [Required]
+        [StringLength(5)]
+        [MinLength(5, ErrorMessage = "Sifra ucenika mora imati tacno 5 karaktera.")]
+        public string SifraUcenika { get; set; } = string.Empty;
+
+        [Required]
         [StringLength(30)]
         public string Ime { get; set; } = string.Empty;
 
