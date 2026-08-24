@@ -1,0 +1,68 @@
+﻿@model IEnumerable<PrezentacioniSloj.ViewModel.KorisnikViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Prezime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.KorisnickoIme)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Lozinka)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Uloga)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Prezime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.KorisnickoIme)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Lozinka)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Uloga)
+            </td>
+            <td>
+                    @Html.ActionLink("Izmeni", "Izmeni", new { item.ID }) |
+                    @Html.ActionLink("Detalji", "Detalji", new { item.ID }) |
+                    @Html.ActionLink("Obrisi", "Obrisi", new { item.ID })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

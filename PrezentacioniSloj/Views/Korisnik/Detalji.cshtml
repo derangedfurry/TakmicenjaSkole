@@ -1,0 +1,49 @@
+﻿@using PrezentacioniSloj.ViewModel
+@model KorisnikViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>KorisnikModel</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Ime)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Ime)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Prezime)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Prezime)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.KorisnickoIme)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.KorisnickoIme)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Uloga)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Uloga)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Izmeni" asp-route-id="@Model?.ID">Izmeni</a> |
+    <a asp-action="Index">Nazad na listu</a>
+</div>

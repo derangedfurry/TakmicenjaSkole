@@ -1,0 +1,52 @@
+﻿@using PrezentacioniSloj.ViewModel
+@model RegistracijaViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Registracja novog korisnika</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Registracija">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Ime" class="control-label"></label>
+                <input asp-for="Ime" class="form-control" />
+                <span asp-validation-for="Ime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Prezime" class="control-label"></label>
+                <input asp-for="Prezime" class="form-control" />
+                <span asp-validation-for="Prezime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="KorisnickoIme" class="control-label"></label>
+                <input asp-for="KorisnickoIme" class="form-control" />
+                <span asp-validation-for="KorisnickoIme" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Lozinka" class="control-label"></label>
+                <input asp-for="Lozinka" class="form-control" type="password"/>
+                <span asp-validation-for="Lozinka" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LozinkaPotvrda" class="control-label"></label>
+                <input asp-for="LozinkaPotvrda" class="form-control" type="password" />
+                <span asp-validation-for="LozinkaPotvrda" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Registracija" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
