@@ -1,0 +1,49 @@
+﻿@model PrezentacioniSloj.ViewModel.PredmetViewModel
+
+@{
+    ViewData["Title"] = "Dodaj";
+}
+
+<h1>Dodaj</h1>
+<h4>Predmet</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Dodaj" method="post" id="predmetForm" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ID" class="control-label"></label>
+                <input asp-for="ID"
+                       class="form-control"
+                       placeholder="PR001"
+                       maxlength="5"
+                       minlength="5"
+                       required />
+                <span asp-validation-for="ID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="NazivPredmeta" class="control-label"></label>
+                <input asp-for="NazivPredmeta"
+                       class="form-control"
+                       required />
+                <span asp-validation-for="NazivPredmeta" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Dodaj" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Nazad do liste predmeta</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/predmet-validacija.js" asp-append-version="true"></script>
+}

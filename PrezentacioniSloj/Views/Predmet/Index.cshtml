@@ -1,0 +1,41 @@
+﻿@model IEnumerable<PrezentacioniSloj.ViewModel.PredmetViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Lista predmeta</h1>
+
+<p>
+    <a asp-action="Dodaj">Dodaj novi predmet</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NazivPredmeta)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NazivPredmeta)
+            </td>
+            <td>
+                    @Html.ActionLink("Izmeni", "Izmeni", new { id = item.ID }) |
+                    @Html.ActionLink("Detalji", "Detalji", new { id = item.ID }) |
+                    @Html.ActionLink("Obrisi", "Obrisi", new { id = item.ID })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
