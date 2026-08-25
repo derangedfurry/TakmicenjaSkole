@@ -1,0 +1,71 @@
+﻿@model PrezentacioniSloj.ViewModel.DiplomaViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Diploma";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Diploma – @Model.ImeUcenika @Model.PrezimeUcenika</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            font-family: Georgia, serif;
+            text-align: center;
+            padding: 40px;
+        }
+        .diploma {
+            border: 6px double #333;
+            padding: 50px 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .diploma h1 {
+            font-size: 2.2rem;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+        }
+        .diploma .name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 25px 0;
+        }
+        .diploma .award {
+            font-size: 1.4rem;
+            margin: 20px 0;
+            color: #444;
+        }
+        .no-print { margin-bottom: 20px; }
+
+        @@media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+            .diploma { border-color: #000; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn btn-primary" onclick="window.print()">Štampaj diplomu</button>
+        <button class="btn btn-secondary" onclick="window.close()">Zatvori</button>
+    </div>
+
+    <div class="diploma">
+        <h1>DIPLOMA</h1>
+        <p>Ovim se potvrđuje da je učenik</p>
+        <div class="name">
+            @Model.ImeUcenika @Model.PrezimeUcenika
+        </div>
+        <p>osvojio/la</p>
+        <div class="award">
+            @Model.NazivNagrade
+        </div>
+        <p class="mt-4 text-muted">
+            Nagrada br. @Model.Nagrada
+        </p>
+    </div>
+</body>
+</html>

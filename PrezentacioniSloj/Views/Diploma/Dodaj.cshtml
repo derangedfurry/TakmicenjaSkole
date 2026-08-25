@@ -1,0 +1,55 @@
+﻿@model PrezentacioniSloj.ViewModel.DiplomaViewModel
+
+@{
+    ViewData["Title"] = "Dodaj";
+}
+
+<h1>Dodaj</h1>
+
+<h4>DiplomaViewModel</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Dodaj">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ID" class="control-label"></label>
+                <input asp-for="ID" class="form-control" />
+                <span asp-validation-for="ID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Nagrada" class="control-label"></label>
+                <input asp-for="Nagrada" class="form-control" />
+                <span asp-validation-for="Nagrada" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NazivNagrade" class="control-label"></label>
+                <input asp-for="NazivNagrade" class="form-control" />
+                <span asp-validation-for="NazivNagrade" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImeUcenika" class="control-label"></label>
+                <input asp-for="ImeUcenika" class="form-control" />
+                <span asp-validation-for="ImeUcenika" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PrezimeUcenika" class="control-label"></label>
+                <input asp-for="PrezimeUcenika" class="form-control" />
+                <span asp-validation-for="PrezimeUcenika" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IDUcenika" class="control-label"></label>
+                <input asp-for="IDUcenika" class="form-control" />
+                <span asp-validation-for="IDUcenika" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Dodaj" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Nazad do liste</a>
+</div>
+
