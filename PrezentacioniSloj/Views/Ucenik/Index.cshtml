@@ -1,0 +1,60 @@
+﻿@model IEnumerable<PrezentacioniSloj.ViewModel.UcenikViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Lista</h1>
+
+<p>
+    <a asp-action="Dodaj">Dodaj novog učenika</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.SifraUcenika)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Prezime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BrojBodova)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IDTakmicenja)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SifraUcenika)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Prezime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BrojBodova)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IDTakmicenja)
+            </td>
+            <td>
+                    @Html.ActionLink("Izmeni", "Izmeni", new { id = item.ID }) |
+                    @Html.ActionLink("Detalji", "Detalji", new { id = item.ID }) |
+                    @Html.ActionLink("Obrisi", "Obrisi", new { id = item.ID })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
