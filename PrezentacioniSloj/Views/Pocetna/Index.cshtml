@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+<main>
+    <section class="row" aria-labelledby="aspnetTitle">
+        <h1>Sajt škole za pregled takmicenja</h1>
+        <p>Sajt omogućava pregled svih održanih takmičenja</p>
+    </section>
+
+    <div class="row mt-5">
+
+        <section class="col-md-4 text-center">
+            <p>
+                @Html.ActionLink("Pregledaj Takmicenja", "Index", "Takmicenje", null, new { @class = "btn btn-success btn-lg" })
+            </p>
+        </section>
+
+    </div>
+</main>
