@@ -104,38 +104,16 @@
         <button class="btn btn-secondary" onclick="window.close()">Zatvori</button>
     </div>
 
-    @{
-        if (naslov == "POHVALNICA")
-        {
-            <div class="certificate @cssClass">
-                <h1>@naslov</h1>
-                <p>Ovim se potvrđuje da je učenik učestvovao na takmičenju</p>
-                <div class="name">
-                    @Model.ImeUcenika @Model.PrezimeUcenika
-                </div>
-                <p>@(jePohvalnica ? "dobio/la" : "osvojio/la")</p>
-                <div class="award">
-                    @Model.NazivNagrade
-                </div>
-            </div>
-        } else
-        {
-            <div class="certificate @cssClass">
-                <h1>@naslov</h1>
-                <p>Ovim se potvrđuje da je učenik</p>
-                <div class="name">
-                    @Model.ImeUcenika @Model.PrezimeUcenika
-                </div>
-                <p>@(jePohvalnica ? "dobio/la" : "osvojio/la")</p>
-                <div class="award">
-                    @Model.NazivNagrade
-                </div>
-                <p class="mt-4 text-muted">
-                    Nagrada br. @Model.Nagrada
-                </p>
-            </div>
-        }
-    }
-
+    <div class="certificate @cssClass">
+        <h1>@naslov</h1>
+        <p>Ovim se potvrđuje da je učenik učestvovao na takmičenju</p>
+        <div class="name">
+            @Model.ImeUcenika @Model.PrezimeUcenika
+        </div>
+        <p>@(jePohvalnica ? "dobio/la" : "osvojio/la")</p>
+        <div class="award">
+            @Model.NazivNagrade
+        </div>
+    </div>
 </body>
 </html>

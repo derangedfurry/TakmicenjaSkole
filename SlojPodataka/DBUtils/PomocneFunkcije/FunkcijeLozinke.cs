@@ -11,7 +11,7 @@ namespace BibliotekaKlasa.TehnoloskeKlase.PomocneFunkcije
 
         public static void KreirajHash(string lozinka, out byte[] hash, out byte[] salt)
         {
-            salt = RandomNumberGenerator.GetBytes(16);
+            salt = RandomNumberGenerator.GetBytes(BrojBajtova);
 
             using var pbkdf2 = new Rfc2898DeriveBytes(
                 lozinka,

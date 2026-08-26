@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PrezentacioniSloj.Atributi;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PrezentacioniSloj.ViewModel
@@ -8,8 +9,9 @@ namespace PrezentacioniSloj.ViewModel
         public int ID { get; set; }
 
         [Required(ErrorMessage = "Datum takmicenja je obavezan")]
-        [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        [DataType(DataType.DateTime)]
+        [DatumProvera]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-ddTHH:mm}", ApplyFormatInEditMode = true)]
         public DateTime DatumTakmicenja { get; set; }
 
         [Required]
@@ -24,5 +26,8 @@ namespace PrezentacioniSloj.ViewModel
         [Required]
         public string LokacijaTakmicenja { get; set; } = string.Empty;
 
+        [Required]
+
+        public int KorisnikID { get; set; }
     }
 }

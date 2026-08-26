@@ -1,3 +1,4 @@
+using BibliotekaKlasa.TehnoloskeKlase;
 using Microsoft.EntityFrameworkCore;
 using SlojPodataka.Kontekst;
 
@@ -21,6 +22,7 @@ builder.Services.AddCors(options =>
 
 
 var konekcioniString = builder.Configuration.GetConnectionString("KonekcioniString");
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(konekcioniString));

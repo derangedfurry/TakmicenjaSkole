@@ -19,8 +19,11 @@ namespace PrezentacioniSloj.ViewModel
         public string Prezime { get; set; } = string.Empty;
 
         [Required]
+        [Range(0, 100, ErrorMessage = "Broj bodova mora biti između 0 i 100.")]
         public int BrojBodova { get; set; } = 0;
 
         public int IDTakmicenja { get; set; }
+
+        public int DiplomaID { get; set; } = 0;
     }
 }

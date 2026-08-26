@@ -65,6 +65,14 @@ namespace PrezentacioniSloj.Controllers
 
             if (ModelState.IsValid)
             {
+                var proveraSifre = await _httpKlient.GetFromJsonAsync<bool>($"api/Ucenik/ProveriSifru?sifra={Uri.EscapeDataString(ucenikModel.Ucenik.SifraUcenika ?? "")}");
+
+                if (proveraSifre)
+                {
+                    ModelState.AddModelError(string.Empty, $"Učenik sa šifrom {ucenikModel.Ucenik.SifraUcenika} već postoji.");
+                    return View(ucenikModel);
+                }
+
                 var odgovor = await _httpKlient.PostAsJsonAsync("api/Ucenik", ucenikModel.Ucenik);
 
                 Debug.WriteLine("HTTP odgovor: " + odgovor.StatusCode);
@@ -103,7 +111,7 @@ namespace PrezentacioniSloj.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Izmeni(int id, [Bind("ID,Ime,Prezime,BrojBodova")] UcenikViewModel ucenikModel)
+        public async Task<IActionResult> Izmeni(int id, [Bind("ID,SifraUcenika,Ime,Prezime,BrojBodova,IDTakmicenja")] UcenikViewModel ucenikModel)
         {
             if (id != ucenikModel.ID)
             {
@@ -112,9 +120,30 @@ namespace PrezentacioniSloj.Controllers
 
             if (ModelState.IsValid)
             {
+
+
+
+                UcenikViewModel ucenik = await _httpKlient.GetFromJsonAsync<UcenikViewModel>($"api/Ucenik/{id}");
+
+                if (!(ucenik.SifraUcenika == ucenikModel.SifraUcenika))
+                {
+                    var proveraSifre = await _httpKlient.GetFromJsonAsync<bool>
+                    ($"api/Ucenik/ProveriSifru?sifra={Uri.EscapeDataString(ucenikModel.SifraUcenika ?? "")}");
+                    Debug.WriteLine("Provera sifre ucenika");
+                    if (proveraSifre)
+                    {
+                        
+                        ModelState.AddModelError(string.Empty, $"Učenik sa šifrom {ucenikModel.SifraUcenika} već postoji.");
+                        return View(ucenikModel);
+                    }
+
+                }
+
+
                 try
                 {
                     await _httpKlient.PutAsJsonAsync($"api/Ucenik/{id}", ucenikModel);
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {

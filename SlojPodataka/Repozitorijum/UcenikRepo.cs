@@ -1,6 +1,9 @@
-﻿using SlojPodataka.Kontekst;
+﻿using Microsoft.EntityFrameworkCore;
+using SlojPodataka.Kontekst;
+using SlojPodataka.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,42 +19,88 @@ namespace SlojPodataka.Repozitorijum
             this.kontekst = kontekst;
         }
 
-        public void Dodaj(SlojPodataka.Model.UcenikModel ucenikModel)
+        public async Task<List<UcenikModel>> DajSve()
         {
-            if (ucenikModel == null) return;
-            kontekst.UcenikModelObjektiDBSet.Add(ucenikModel);
-            kontekst.SaveChanges();
+
+            List<UcenikModel> ucenici = await kontekst.UcenikModelObjektiDBSet
+                .Select(u => new UcenikModel
+                {
+                    ID = u.ID,
+                    SifraUcenika = u.SifraUcenika,
+                    Ime = u.Ime,
+                    Prezime = u.Prezime,
+                    BrojBodova = u.BrojBodova,
+                    IDTakmicenja = u.IDTakmicenja,
+                    
+                })
+                .ToListAsync();
+
+            return ucenici;
         }
 
-        public void Izmeni(SlojPodataka.Model.UcenikModel ucenikModel)
+
+        public async Task<UcenikModel> DajPoId(int id)
         {
-            if (ucenikModel == null) return;
-            var ucenik = kontekst.UcenikModelObjektiDBSet.Find(ucenikModel.ID);
-            if (ucenik == null) return;
-            ucenik.Ime = ucenikModel.Ime;
-            ucenik.Prezime = ucenikModel.Prezime;
-            ucenik.BrojBodova = ucenikModel.BrojBodova;
-            ucenik.IDTakmicenja = ucenikModel.IDTakmicenja;
-            kontekst.SaveChanges();
+            UcenikModel ucenikModel = await kontekst.UcenikModelObjektiDBSet.FindAsync(id);
+
+            return ucenikModel;
         }
 
-        public void Obrisi(int id)
+
+        public async void Dodaj(UcenikModel ucenikModel)
         {
-            var ucenik = kontekst.UcenikModelObjektiDBSet.Find(id);
-            if (ucenik == null) return;
+            Debug.WriteLine("Dodavanje ucenika: " + ucenikModel.Ime + " " + ucenikModel.Prezime);
+
+            UcenikModel ucenik = new UcenikModel
+            {
+                SifraUcenika = ucenikModel.SifraUcenika,
+                Ime = ucenikModel.Ime,
+                Prezime = ucenikModel.Prezime,
+                BrojBodova = ucenikModel.BrojBodova,
+                IDTakmicenja = ucenikModel.IDTakmicenja
+            };
+
+
+            kontekst.UcenikModelObjektiDBSet.Add(ucenik);
+        }
+
+        public async void Izmeni(UcenikModel ucenik, UcenikModel ucenikSaIzmenama)
+        {
+            ucenik.ID = ucenikSaIzmenama.ID;
+            ucenik.SifraUcenika = ucenikSaIzmenama.SifraUcenika;
+            ucenik.Ime = ucenikSaIzmenama.Ime;
+            ucenik.Prezime = ucenikSaIzmenama.Prezime;
+            ucenik.BrojBodova = ucenikSaIzmenama.BrojBodova;
+            ucenik.IDTakmicenja = ucenikSaIzmenama.IDTakmicenja;
+        }
+
+        public async void Obrisi(UcenikModel ucenik)
+        {
+
             kontekst.UcenikModelObjektiDBSet.Remove(ucenik);
-            kontekst.SaveChanges();
         }
 
-        public List<SlojPodataka.Model.UcenikModel> DajSveUcenike()
+        public async Task<List<UcenikModel>> DajPoTakmicenjuId(int id)
         {
-            return kontekst.UcenikModelObjektiDBSet.ToList();
-        }
+            List<UcenikModel> ucenici = await kontekst.UcenikModelObjektiDBSet
+                .Where(u => u.IDTakmicenja == id)
+                .Select(u => new UcenikModel
+                {
+                    ID = u.ID,
+                    SifraUcenika = u.SifraUcenika,
+                    Ime = u.Ime,
+                    Prezime = u.Prezime,
+                    BrojBodova = u.BrojBodova,
+                    IDTakmicenja = u.IDTakmicenja
+                    // DiplomaID set below
+                })
+                .ToListAsync();
 
-        public List<SlojPodataka.Model.UcenikModel> DajSveUcenikePoTakmicenju(int idTakmicenja)
+            return ucenici;
+        }
+        public bool Postoji(int id)
         {
-            return kontekst.UcenikModelObjektiDBSet.Where(u => u.IDTakmicenja == idTakmicenja).ToList();
+            return kontekst.UcenikModelObjektiDBSet.Any(e => e.ID == id);
         }
-
     }
 }

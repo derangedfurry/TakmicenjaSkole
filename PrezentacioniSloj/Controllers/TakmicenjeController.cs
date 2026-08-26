@@ -82,7 +82,7 @@ namespace PrezentacioniSloj.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Dodaj([Bind("ID,DatumTakmicenja,NazivPredmetaTakmicenja,NazivTakmicenja,TipTakmicenja,LokacijaTakmicenja")] TakmicenjeViewModel takmicenjeModel)
+        public async Task<IActionResult> Dodaj([Bind("ID,DatumTakmicenja,NazivPredmetaTakmicenja,NazivTakmicenja,TipTakmicenja,LokacijaTakmicenja,KorisnikID")] TakmicenjeViewModel takmicenjeModel)
         {
             if (ModelState.IsValid)
             {
@@ -111,7 +111,7 @@ namespace PrezentacioniSloj.Controllers
         {
             Debug.WriteLine("DodajRezultat POST called");
             Debug.WriteLine("Selektovan predmet Takmicenje : " + model.Takmicenje.NazivPredmetaTakmicenja);
-
+            Debug.WriteLine("KorisnikId = ", model.Takmicenje.KorisnikID);
             if(model.Takmicenje.NazivPredmetaTakmicenja == null)
             {
                 ModelState.AddModelError("selektovanPredmet", "Morate izabrati predmet.");
@@ -199,6 +199,7 @@ namespace PrezentacioniSloj.Controllers
             foreach (var takmicenje in takmicenja)
             {
                 var ucenici = _httpKlient.GetFromJsonAsync<List<UcenikViewModel>>($"api/Ucenik/PoTakmicenju/{takmicenje.ID}").Result;
+                    
                 var rezultat = new RezultatViewModel
                 {
                     Takmicenje = takmicenje,
@@ -206,6 +207,8 @@ namespace PrezentacioniSloj.Controllers
                 };
                 rezultati.Add(rezultat);
             }
+
+
 
             rezultati = Filtriraj(rezultati, odDatuma, doDatuma, predmet, tip);
             return View(rezultati);
@@ -278,6 +281,11 @@ namespace PrezentacioniSloj.Controllers
             {
                 return NotFound();
             }
+
+            ViewBag.Predmeti = await _httpKlient
+            .GetFromJsonAsync<List<PredmetViewModel>>("api/Predmet")
+            ?? new List<PredmetViewModel>();
+
             return View(takmicenjeModel);
         }
 
@@ -286,7 +294,7 @@ namespace PrezentacioniSloj.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Izmeni(int id, [Bind("ID,DatumTakmicenja,NazivPredmetaTakmicenja,NazivTakmicenja,TipTakmicenja,LokacijaTakmicenja")] TakmicenjeViewModel takmicenjeModel)
+        public async Task<IActionResult> Izmeni(int id, [Bind("ID,DatumTakmicenja,NazivPredmetaTakmicenja,NazivTakmicenja,TipTakmicenja,LokacijaTakmicenja,KorisnikID")] TakmicenjeViewModel takmicenjeModel)
         {
             if (id != takmicenjeModel.ID)
             {

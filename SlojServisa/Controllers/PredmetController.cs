@@ -1,14 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BibliotekaKlasa.TehnoloskeKlase;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrezentacioniSloj.ViewModel;
 using SlojPodataka.Kontekst;
 using SlojPodataka.Model;
+using SlojPodataka.Repozitorijum;
+using SlojPoslovneLogike;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SlojServisa.Controllers
 {
@@ -17,24 +20,33 @@ namespace SlojServisa.Controllers
     public class PredmetController : ControllerBase
     {
         private readonly AppDbContext _context;
-
+        private readonly PredmetRepo _PredmetRepo;
         public PredmetController(AppDbContext context)
         {
             _context = context;
+            _PredmetRepo = new PredmetRepo(new KonekcijaKlasa("Server=(localdb)\\mssqllocaldb;Database=SkolaTakmicenja;Trusted_Connection=True;MultipleActiveResultSets=true"));
         }
         //List
         // GET: api/Predmet
         [HttpGet]
         public async Task<IActionResult> DajSve()
         {
-            List<PredmetViewModel> predmeti = await _context.PredmetiModelObjektiDBSet
+            List<PredmetModel> predmeti = _PredmetRepo.DajSve();
+                
+            List<PredmetViewModel> predmetModeli = predmeti.Select(u => new PredmetViewModel
+            {
+                ID = u.ID,
+                NazivPredmeta = u.NazivPredmeta,
+                
+            }).ToList();
+             /*   await _context.PredmetiModelObjektiDBSet
                 .Select(p => new PredmetViewModel
                 {
                     ID = p.ID,
                     NazivPredmeta = p.NazivPredmeta,  
                 })
                 .ToListAsync();
-
+             */
             return Ok(predmeti);
         }
         //Single
@@ -42,23 +54,21 @@ namespace SlojServisa.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> DajPoId(string id)
         {
-            var predmetModel = await _context.PredmetiModelObjektiDBSet.FindAsync(id);
+            PredmetModel predmet = _PredmetRepo.DajPredmetPoID(id);
 
-
-
-            if (predmetModel == null)
+            if (predmet == null)
             {
                 return NotFound();
             }
 
 
-            PredmetViewModel predmet = new PredmetViewModel
+            PredmetViewModel predmetModel = new PredmetViewModel
             {
-                ID = predmetModel.ID,
-                NazivPredmeta = predmetModel.NazivPredmeta,
+                ID = predmet.ID,
+                NazivPredmeta = predmet.NazivPredmeta,
             };
 
-            return Ok(predmet);
+            return Ok(predmetModel);
         }
         //Edit
         // PUT: api/Predmet/5
@@ -71,7 +81,7 @@ namespace SlojServisa.Controllers
 
             Debug.WriteLine($"Izmena Predmeta ID: {predmetModel.ID}, Naziv: {predmetModel.NazivPredmeta}");
 
-            PredmetModel predmet = await _context.PredmetiModelObjektiDBSet.FindAsync(id);
+            PredmetModel predmet = _PredmetRepo.DajPredmetPoID(id);
 
             Debug.WriteLine($"Pronadjen Predmet ID: {predmet?.ID}, Naziv: {predmet?.NazivPredmeta}");
 
@@ -80,8 +90,15 @@ namespace SlojServisa.Controllers
                 return NotFound();
             } else
             {
-                predmet.ID = predmetModel.ID;
-                predmet.NazivPredmeta = predmetModel.NazivPredmeta;
+                PredmetModel predmetSaIzmenama = new PredmetModel
+                {
+                    ID = predmetModel.ID,
+                    NazivPredmeta = predmetModel.NazivPredmeta,
+
+                };
+
+                _PredmetRepo.Izmeni(id, predmetSaIzmenama);
+
 
                 _context.Entry(predmet).State = EntityState.Modified;
             }
@@ -116,7 +133,7 @@ namespace SlojServisa.Controllers
                 NazivPredmeta = predmetModel.NazivPredmeta,
             };
 
-            _context.PredmetiModelObjektiDBSet.Add(predmet);
+            _PredmetRepo.Dodaj(predmet);
             try
             {
                 await _context.SaveChangesAsync();
@@ -140,21 +157,54 @@ namespace SlojServisa.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Obrisi(string id)
         {
-            var predmetModel = await _context.PredmetiModelObjektiDBSet.FindAsync(id);
+            var predmetModel = _PredmetRepo.DajPredmetPoID(id);
             if (predmetModel == null)
             {
                 return NotFound();
             }
 
-            _context.PredmetiModelObjektiDBSet.Remove(predmetModel);
+            _PredmetRepo.Obrisi(id);
             await _context.SaveChangesAsync();
 
             return Ok();
         }
 
+        [HttpGet("ProveriNaziv")]
+        public async Task<IActionResult> ProveriNaziv([FromQuery] string naziv)
+        {
+
+            bool postoji = _PredmetRepo.DajSve().Any(p => p.NazivPredmeta.ToLower() == naziv.ToLower());
+
+            if (postoji)
+            {
+                return Ok(true);
+            }
+            else
+            {
+                return Ok(false);
+            }
+
+        }
+
+        [HttpGet("ProveriId")]
+        public async Task<IActionResult> ProveriId([FromQuery] string id)
+        {
+
+            bool postoji = _PredmetRepo.DajSve().Any(p => p.ID.ToLower() == id.ToLower());
+
+            if (postoji)
+            {
+                return Ok(true);
+            } else
+            {
+                return Ok(false);
+            }
+            
+        }
+
         private bool Postoji(string id)
         {
-            return _context.PredmetiModelObjektiDBSet.Any(e => e.ID == id);
+            return _PredmetRepo.DajSve().Any(e => e.ID == id);
         }
     }
 }

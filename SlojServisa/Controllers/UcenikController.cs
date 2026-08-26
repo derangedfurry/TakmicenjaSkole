@@ -1,14 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BibliotekaKlasa.TehnoloskeKlase;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrezentacioniSloj.ViewModel;
 using SlojPodataka.Kontekst;
 using SlojPodataka.Model;
+using SlojPodataka.Repozitorijum;
+using SlojPoslovneLogike;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SlojServisa.Controllers
 {
@@ -16,18 +19,32 @@ namespace SlojServisa.Controllers
     [ApiController]
     public class UcenikController : ControllerBase
     {
-        private readonly AppDbContext _context;
-
-        public UcenikController(AppDbContext context)
+        private readonly AppDbContext _kontekst;
+        private readonly DiplomaPoslovnaLogika _poslovnaLogika;
+        private readonly UcenikRepo _UcenikRepo;
+        private readonly DiplomaRepo _DiplomaRepo;
+        public UcenikController(AppDbContext kontekst)
         {
-            _context = context;
+            _poslovnaLogika = new DiplomaPoslovnaLogika(kontekst);
+            _kontekst = kontekst;
+            _UcenikRepo = new UcenikRepo(kontekst);
+            _DiplomaRepo = new DiplomaRepo(new KonekcijaKlasa("Server=(localdb)\\mssqllocaldb;Database=SkolaTakmicenja;Trusted_Connection=True;MultipleActiveResultSets=true"));
         }
 
+        //Repo
         // GET: api/Ucenik
         [HttpGet]
         public async Task<IActionResult> DajSve()
         {
-            List<UcenikViewModel> ucenici = await _context.UcenikModelObjektiDBSet
+            List<DiplomaModel> diplome = _DiplomaRepo.DajSve();
+
+            var diplomaDict = diplome
+                .GroupBy(d => d.IDUcenika)
+                .ToDictionary(g => g.Key, g => g.First().ID);
+
+            List<UcenikModel> ucenici = await _UcenikRepo.DajSve();
+
+            List<UcenikViewModel> uceniciViewModel = ucenici
                 .Select(u => new UcenikViewModel
                 {
                     ID = u.ID,
@@ -35,18 +52,31 @@ namespace SlojServisa.Controllers
                     Ime = u.Ime,
                     Prezime = u.Prezime,
                     BrojBodova = u.BrojBodova,
-                    IDTakmicenja = u.IDTakmicenja
+                    IDTakmicenja = u.IDTakmicenja,
+                    
                 })
-                .ToListAsync();
+                .ToList();
+
+
+
+            foreach (var u in uceniciViewModel)
+            {
+                if (diplomaDict.TryGetValue(u.ID, out int diplomaId))
+                    u.DiplomaID = diplomaId;
+                else
+                    u.DiplomaID = 0;
+            }
 
             return Ok(ucenici);
         }
 
+
+        //Repo
         // GET: api/Ucenik/5
         [HttpGet("{id}")]
         public async Task<IActionResult> DajPoId(int id)
         {
-            var ucenikModel = await _context.UcenikModelObjektiDBSet.FindAsync(id);
+            UcenikModel ucenikModel = await _UcenikRepo.DajPoId(id);
 
             if (ucenikModel == null)
             {
@@ -66,13 +96,13 @@ namespace SlojServisa.Controllers
             return Ok(ucenikViewModel);
         }
 
+        //Repo
         // PUT: api/Ucenik/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> Izmeni(int id, UcenikViewModel ucenikModel)
         {
 
-            UcenikModel ucenik = await _context.UcenikModelObjektiDBSet.FindAsync(id);
+            UcenikModel ucenik = await _UcenikRepo.DajPoId(id);
 
             if (ucenik == null)
             {
@@ -80,19 +110,24 @@ namespace SlojServisa.Controllers
             }
             else
             {
-                ucenik.Ime = ucenikModel.Ime;
-                ucenik.SifraUcenika = ucenikModel.SifraUcenika;
-                ucenik.Prezime = ucenikModel.Prezime;
-                ucenik.BrojBodova = ucenikModel.BrojBodova;
-                ucenik.IDTakmicenja = ucenikModel.IDTakmicenja;
-                _context.Entry(ucenikModel).State = EntityState.Modified;
+                UcenikModel ucenikSaIzmenama = new UcenikModel
+                {
+                    ID = ucenikModel.ID,
+                    SifraUcenika = ucenikModel.SifraUcenika,
+                    Ime = ucenikModel.Ime,
+                    Prezime = ucenikModel.Prezime,
+                    BrojBodova = ucenikModel.BrojBodova,
+                    IDTakmicenja = ucenikModel.IDTakmicenja,
+                };
+
+                _UcenikRepo.Izmeni(ucenik, ucenikSaIzmenama);
+
+                _kontekst.Entry(ucenik).State = EntityState.Modified;
             }
-
-
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _kontekst.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -106,11 +141,13 @@ namespace SlojServisa.Controllers
                 }
             }
 
+            await _poslovnaLogika.ProveriDiplome();
+
             return Ok();
         }
 
+        //Repo
         // POST: api/Ucenik
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<IActionResult> Dodaj(UcenikViewModel ucenikModel)
         {
@@ -125,37 +162,72 @@ namespace SlojServisa.Controllers
                 IDTakmicenja = ucenikModel.IDTakmicenja
             };
 
-            _context.UcenikModelObjektiDBSet.Add(ucenik);
-            await _context.SaveChangesAsync();
+            _UcenikRepo.Dodaj(ucenik);
+            await _kontekst.SaveChangesAsync();
+
+
+            await _poslovnaLogika.ProveriDiplome();
 
             return Ok();
         }
 
-        // DELETE: api/Ucenik/5
+        //Repo
+        // Obrisi: api/Ucenik/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Obrisi(int id)
         {
-            var ucenikModel = await _context.UcenikModelObjektiDBSet.FindAsync(id);
-            if (ucenikModel == null)
+            UcenikModel ucenik = await _UcenikRepo.DajPoId(id);
+            if (ucenik == null)
             {
                 return NotFound();
             }
 
-            _context.UcenikModelObjektiDBSet.Remove(ucenikModel);
-            await _context.SaveChangesAsync();
+            _UcenikRepo.Obrisi(ucenik);
+            await _kontekst.SaveChangesAsync();
 
             return Ok();
         }
 
-        private bool Postoji(int id)
+        [HttpGet("ProveriSifru")]
+        public async Task<IActionResult> ProveriSifru([FromQuery] string sifra)
         {
-            return _context.UcenikModelObjektiDBSet.Any(e => e.ID == id);
+            if (string.IsNullOrWhiteSpace(sifra))
+                return Ok(new { exists = false });
+
+            bool postoji = await _kontekst.UcenikModelObjektiDBSet
+                .AnyAsync(u => u.SifraUcenika.ToLower() == sifra.ToLower());
+
+            if (postoji)
+            {
+                return Ok(true);
+            } else
+            {
+                return Ok(false);
+            }
         }
 
+        private bool Postoji(int id)
+        {
+            return _UcenikRepo.Postoji(id);
+        }
+
+
+        //Repo
         [HttpGet("PoTakmicenju/{id}")]
         public async Task<IActionResult> DajPoTakmicenjuId(int id)
         {
-            List<UcenikViewModel> ucenici = await _context.UcenikModelObjektiDBSet
+
+            List<DiplomaModel> diplome = _DiplomaRepo.DajSve();
+
+
+            var diplomaDict = diplome
+                .GroupBy(d => d.IDUcenika)
+                .ToDictionary(g => g.Key, g => g.First().ID);
+
+            List<UcenikModel> ucenici = await _UcenikRepo.DajPoTakmicenjuId(id);
+
+
+            List<UcenikViewModel> uceniciViewModel = ucenici
                 .Where(u => u.IDTakmicenja == id)
                 .Select(u => new UcenikViewModel
                 {
@@ -165,8 +237,18 @@ namespace SlojServisa.Controllers
                     Prezime = u.Prezime,
                     BrojBodova = u.BrojBodova,
                     IDTakmicenja = u.IDTakmicenja
+
                 })
-                .ToListAsync();
+                .ToList();
+
+
+            foreach (var u in uceniciViewModel)
+            {
+                if (diplomaDict.TryGetValue(u.ID, out int diplomaId))
+                    u.DiplomaID = diplomaId;
+                else
+                    u.DiplomaID = 0;
+            }
 
             return Ok(ucenici);
         }

@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BibliotekaKlasa.TehnoloskeKlase;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrezentacioniSloj.ViewModel;
 using SlojPodataka.Kontekst;
 using SlojPodataka.Model;
+using SlojPodataka.Repozitorijum;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SlojServisa.Controllers
 {
@@ -16,35 +18,56 @@ namespace SlojServisa.Controllers
     public class TakmicenjeController : ControllerBase
     {
         private readonly AppDbContext _context;
-
+        private readonly PredmetRepo _PredmetRepo;
+        private readonly TakmicenjeRepo _TakmicenjeRepo;
         public TakmicenjeController(AppDbContext context)
         {
             _context = context;
+            _PredmetRepo = new PredmetRepo(new KonekcijaKlasa("Server=(localdb)\\mssqllocaldb;Database=SkolaTakmicenja;Trusted_Connection=True;MultipleActiveResultSets=true"));
+            _TakmicenjeRepo = new TakmicenjeRepo(context);
         }
 
         // GET: api/Takmicenje
         [HttpGet]
         public async Task<IActionResult> DajSve()
         {
-            List<TakmicenjeViewModel> takmicenja = await _context.TakmicenjaModelObjektiDBSet
-                .Select(t => new TakmicenjeViewModel
+            var predmeti = _PredmetRepo.DajSve()
+                .Select(p => new { p.ID, p.NazivPredmeta })
+                .ToList();
+
+            var predmetDict = predmeti.ToDictionary(p => p.ID, p => p.NazivPredmeta);
+
+            var takmicenjaModel = _TakmicenjeRepo.DajSve()
+                .Select(t => new
                 {
-                    ID = t.ID,
-                    NazivTakmicenja = t.NazivTakmicenja,
-                    DatumTakmicenja = t.DatumTakmicenja,
-                    LokacijaTakmicenja = t.LokacijaTakmicenja,
-                    TipTakmicenja = t.TipTakmicenja
+                    t.ID,
+                    t.NazivTakmicenja,
+                    t.DatumTakmicenja,
+                    t.LokacijaTakmicenja,
+                    t.TipTakmicenja,
+                    t.IDPredmeta,
+                    t.KorisnikID
                 })
-                .ToListAsync();
+                .ToList();
+
+            var takmicenja = takmicenjaModel.Select(t => new TakmicenjeViewModel
+            {
+                ID = t.ID,
+                NazivTakmicenja = t.NazivTakmicenja,
+                DatumTakmicenja = t.DatumTakmicenja,
+                LokacijaTakmicenja = t.LokacijaTakmicenja,
+                TipTakmicenja = t.TipTakmicenja,
+                NazivPredmetaTakmicenja = predmetDict.GetValueOrDefault(t.IDPredmeta),
+                KorisnikID = t.KorisnikID
+            }).ToList();
 
             return Ok(takmicenja);
         }
-
         // GET: api/Takmicenje/5
         [HttpGet("{id}")]
         public async Task<IActionResult> DajPoId(int id)
         {
-            var takmicenjeModel = await _context.TakmicenjaModelObjektiDBSet.FindAsync(id);
+            var takmicenjeModel = _TakmicenjeRepo.DajPoId(id);
 
             if (takmicenjeModel == null)
             {
@@ -57,7 +80,8 @@ namespace SlojServisa.Controllers
                 NazivTakmicenja = takmicenjeModel.NazivTakmicenja,
                 DatumTakmicenja = takmicenjeModel.DatumTakmicenja,
                 LokacijaTakmicenja = takmicenjeModel.LokacijaTakmicenja,
-                TipTakmicenja = takmicenjeModel.TipTakmicenja
+                TipTakmicenja = takmicenjeModel.TipTakmicenja,
+                KorisnikID = takmicenjeModel.KorisnikID,
             };
 
             return Ok(takmicenjeViewModel);
@@ -76,11 +100,18 @@ namespace SlojServisa.Controllers
                 return NotFound();
             } else
             {
-                takmicenje.ID = takmicenjeModel.ID;
-                takmicenje.NazivTakmicenja = takmicenjeModel.NazivTakmicenja;
-                takmicenje.DatumTakmicenja = takmicenjeModel.DatumTakmicenja;
-                takmicenje.LokacijaTakmicenja = takmicenjeModel.LokacijaTakmicenja;
-                takmicenje.TipTakmicenja = takmicenjeModel.TipTakmicenja;
+                TakmicenjeModel takmicenjeSaIzmenama = new TakmicenjeModel
+                {
+                    ID = takmicenjeModel.ID,
+                    NazivTakmicenja = takmicenjeModel.NazivTakmicenja,
+                    DatumTakmicenja = takmicenjeModel.DatumTakmicenja,
+                    LokacijaTakmicenja = takmicenjeModel.LokacijaTakmicenja,
+                    TipTakmicenja = takmicenjeModel.TipTakmicenja,
+                    KorisnikID = takmicenjeModel.KorisnikID
+                };
+
+                _TakmicenjeRepo.Izmeni(id, takmicenjeSaIzmenama);
+
 
                 _context.Entry(takmicenje).State = EntityState.Modified;
             }
@@ -129,10 +160,12 @@ namespace SlojServisa.Controllers
                 NazivTakmicenja = takmicenjeModel.NazivTakmicenja,
                 DatumTakmicenja = takmicenjeModel.DatumTakmicenja,
                 LokacijaTakmicenja = takmicenjeModel.LokacijaTakmicenja,
-                TipTakmicenja = takmicenjeModel.TipTakmicenja
+                TipTakmicenja = takmicenjeModel.TipTakmicenja,
+                KorisnikID = takmicenjeModel.KorisnikID,
             };
 
-            _context.TakmicenjaModelObjektiDBSet.Add(takmicenje);
+            _TakmicenjeRepo.Dodaj(takmicenje);
+
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -142,13 +175,13 @@ namespace SlojServisa.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Obrisi(int id)
         {
-            var takmicenjeModel = await _context.TakmicenjaModelObjektiDBSet.FindAsync(id);
+            var takmicenjeModel = _TakmicenjeRepo.DajPoId(id);
             if (takmicenjeModel == null)
             {
                 return NotFound();
             }
 
-            _context.TakmicenjaModelObjektiDBSet.Remove(takmicenjeModel);
+            _TakmicenjeRepo.Obrisi(id);
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -156,7 +189,7 @@ namespace SlojServisa.Controllers
 
         private bool Postoji(int id)
         {
-            return _context.TakmicenjaModelObjektiDBSet.Any(e => e.ID == id);
+            return _TakmicenjeRepo.DajSve().Any(e => e.ID == id);
         }
     }
 }

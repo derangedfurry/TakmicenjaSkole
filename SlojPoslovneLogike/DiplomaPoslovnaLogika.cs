@@ -1,4 +1,6 @@
 ﻿using BibliotekaKlasa.TehnoloskeKlase;
+using SlojPodataka.Kontekst;
+using SlojPodataka.Model;
 using SlojPodataka.Repozitorijum;
 using System;
 using System.Collections.Generic;
@@ -17,13 +19,25 @@ namespace SlojPoslovneLogike
 
         private List<Nagrada> nagrade;
         private DiplomaRepo diplomaRepo;
+        private UcenikRepo ucenikRepo;
         private KonekcijaKlasa konekcija;
 
-        public DiplomaPoslovnaLogika(KonekcijaKlasa konekcija)
+        public DiplomaPoslovnaLogika(KonekcijaKlasa konekcija, AppDbContext appDbContext)
         {
             this.nagrade = new List<Nagrada>();
             this.konekcija = konekcija;
 
+            this.diplomaRepo = new DiplomaRepo(konekcija);
+            this.ucenikRepo = new UcenikRepo(appDbContext);
+            UcitajXMLOgranicenja();
+        }
+
+        public DiplomaPoslovnaLogika(AppDbContext appDbContext)
+        {
+            KonekcijaKlasa konekcija = new KonekcijaKlasa("Server=(localdb)\\mssqllocaldb;Database=SkolaTakmicenja;Trusted_Connection=True;MultipleActiveResultSets=true");
+            this.nagrade = new List<Nagrada>();
+            this.konekcija = konekcija;
+            this.ucenikRepo = new UcenikRepo(appDbContext);
             this.diplomaRepo = new DiplomaRepo(konekcija);
             UcitajXMLOgranicenja();
         }
@@ -32,44 +46,111 @@ namespace SlojPoslovneLogike
         {
             XDocument doc = XDocument.Load(putanja);
 
-            doc.Descendants("Nagrade")
+            Debug.WriteLine(doc.ToString());
+
+            doc.Descendants("Nagrada")
                 .ToList()
                 .ForEach(x =>
                 {
                     Nagrada nagrada = new Nagrada
                     {
-                        BrojNagrade = int.Parse(x.Element("Broj")?.Value ?? "0"),
+                        BrojNagrade = int.Parse(x.Element("ID")?.Value ?? "0"),
                         NazivNagrade = x.Element("Naziv")?.Value,
                         MaksimumBrojBodova = int.Parse(x.Element("Maksimum")?.Value ?? "0"),
                         MinimumBrojBodova = int.Parse(x.Element("Minimum")?.Value ?? "0")
                     };
 
-                    int BrojNagrade = int.Parse(x.Element("Broj")?.Value ?? "0");
-                    string NazivNagrade = x.Element("Naziv")?.Value;
-                    int MaksimumBrojBodova = int.Parse(x.Element("Maksimum")?.Value ?? "0");
-                    int MinimumBrojBodova = int.Parse(x.Element("Minimum")?.Value ?? "0");
 
-                    Debug.Write($"Broj nagrade: {BrojNagrade}, Naziv nagrade: {NazivNagrade}, Maksimum bodova: {MaksimumBrojBodova}, Minimum bodova: {MinimumBrojBodova}");
+                    /*Debug.WriteLine($"Broj nagrade: {nagrada.BrojNagrade}, " +
+                        $"Naziv nagrade: {nagrada.NazivNagrade}" +
+                        $", Maksimum bodova: {nagrada.MaksimumBrojBodova}, " +
+                        $"Minimum bodova: {nagrada.MinimumBrojBodova}");
+                    */
+                    nagrade.Add(nagrada);
                 });
-
         }
 
-        public void GenerisiDiplomu(int brojBodova)
+        public void GenerisiDiplomu(int brojBodova,int IDucenika)
         {
-            var nagrada = nagrade.FirstOrDefault(n => brojBodova >= n.MinimumBrojBodova && brojBodova <= n.MaksimumBrojBodova);
+            Debug.WriteLine("Generiasnje  diploma");
+            Nagrada nagrada = nagrade.FirstOrDefault(n => n.MinimumBrojBodova <= brojBodova && n.MaksimumBrojBodova >= brojBodova);
             if (nagrada != null)
             {
                 Debug.WriteLine($"Ucenik je osvojio nagradu: {nagrada.NazivNagrade}");
-                diplomaRepo.Dodaj(new SlojPodataka.Model.DiplomaModel
+                Debug.WriteLine("UcenikID = " + IDucenika);
+                diplomaRepo.Dodaj(new DiplomaModel
                 {
-                    IDUcenika = 1, // Primer ID učenika
+                    IDUcenika = IDucenika,
                     Nagrada = nagrada.BrojNagrade
+                   
                 });
             }
             else
             {
                 Debug.WriteLine("Ucenik nije osvojio nagradu.");
             }
+        }
+        public async Task ProveriDiplome()
+        {
+            Debug.WriteLine("Provera diploma");
+
+            List<UcenikModel> ucenici = await ucenikRepo.DajSve();
+            Debug.WriteLine($"Učitano učenika: {ucenici.Count}");
+
+            foreach (UcenikModel ucenik in ucenici)
+            {
+                // Find matching award for this score (inclusive range)
+                Nagrada? nagrada = nagrade.FirstOrDefault(n =>
+                    ucenik.BrojBodova >= n.MinimumBrojBodova &&
+                    ucenik.BrojBodova <= n.MaksimumBrojBodova);
+
+                if (nagrada == null)
+                {
+                    Debug.WriteLine($"Učenik {ucenik.ID} ({ucenik.BrojBodova} bodova) – nema nagrade.");
+                    continue;
+                }
+
+                // Check if diploma already exists for this učenik
+                DiplomaModel postojeca = diplomaRepo.DajSve().FirstOrDefault(d => d.IDUcenika == ucenik.ID);
+                // If you don't have DajPoUceniku, use something like:
+
+
+                if (postojeca != null)
+                {
+                    // Update existing diploma
+                    if (postojeca.Nagrada != nagrada.BrojNagrade)
+                    {
+                        postojeca.Nagrada = nagrada.BrojNagrade;
+                        diplomaRepo.Izmeni(postojeca);   // or Update / Save
+
+                        Debug.WriteLine(
+                            $"Ažurirana diploma ID={postojeca.ID}: Učenik={ucenik.ID}, " +
+                            $"nova nagrada={nagrada.BrojNagrade} ({nagrada.NazivNagrade})");
+                    }
+                    else
+                    {
+                        Debug.WriteLine(
+                            $"Diploma za učenika {ucenik.ID} već postoji sa istom nagradom ({nagrada.NazivNagrade}).");
+                    }
+                }
+                else
+                {
+                    // Create new diploma
+                    diplomaRepo.Dodaj(new DiplomaModel
+                    {
+                        IDUcenika = ucenik.ID,
+                        Nagrada = nagrada.BrojNagrade
+                    });
+
+                    Debug.WriteLine(
+                        $"Dodata diploma: Učenik={ucenik.ID}, nagrada={nagrada.BrojNagrade} ({nagrada.NazivNagrade})");
+                }
+            }
+        }
+
+        public List<Nagrada> DajSveNagrade()
+        {
+            return nagrade;
         }
     }
 

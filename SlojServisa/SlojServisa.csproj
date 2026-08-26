@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PrezentacioniSloj\PrezentacioniSloj.csproj" />
     <ProjectReference Include="..\SlojPodataka\SlojPodataka.csproj" />
+    <ProjectReference Include="..\SlojPoslovneLogike\SlojPoslovneLogike.csproj" />
   </ItemGroup>
 
 </Project>

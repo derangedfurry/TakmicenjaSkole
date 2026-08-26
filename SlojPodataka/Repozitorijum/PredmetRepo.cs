@@ -43,25 +43,24 @@ namespace SlojPodataka.Repozitorijum
 
         }
 
-        public void Izmeni(PredmetModel predmetModel)
+        public void Izmeni(string id, PredmetModel predmetModel)
         {
             konekcija.OtvoriKonekciju();
             using SqlCommand komanda = new SqlCommand("IzmeniPredmet", konekcija.DajKonekciju());
             komanda.CommandType = System.Data.CommandType.StoredProcedure;
-            komanda.Parameters.AddWithValue("@ID", predmetModel.ID);
+            komanda.Parameters.AddWithValue("@Id", id);
             komanda.Parameters.AddWithValue("@NazivPredmeta", predmetModel.NazivPredmeta);
             komanda.ExecuteNonQuery();
             konekcija.ZatvoriKonekciju();
             // add check for the result of the stored procedure execution
         }
 
-        public List<PredmetModel> DajSvePredmete()
+        public List<PredmetModel> DajSve()
         {
             List<PredmetModel> predmeti = new List<PredmetModel>();
 
             konekcija.OtvoriKonekciju();
-            using SqlCommand komanda = new SqlCommand("DajSvePredmete", konekcija.DajKonekciju());
-            komanda.CommandType = System.Data.CommandType.StoredProcedure;
+            using SqlCommand komanda = new SqlCommand("Select * from Predmet", konekcija.DajKonekciju());
             using SqlDataReader reader = komanda.ExecuteReader();
             while (reader.Read())
             {
@@ -84,29 +83,8 @@ namespace SlojPodataka.Repozitorijum
         {
             PredmetModel predmet = null;
             konekcija.OtvoriKonekciju();
-            using SqlCommand komanda = new SqlCommand("DajPredmetPoID", konekcija.DajKonekciju());
-            komanda.CommandType = System.Data.CommandType.StoredProcedure;
+            using SqlCommand komanda = new SqlCommand("Select * from Predmet where ID = @ID", konekcija.DajKonekciju());
             komanda.Parameters.AddWithValue("@ID", id);
-            using SqlDataReader reader = komanda.ExecuteReader();
-            if (reader.Read())
-            {
-                predmet = new PredmetModel
-                {
-                    ID = reader.GetString(0),
-                    NazivPredmeta = reader.GetString(1)
-                };
-            }
-            konekcija.ZatvoriKonekciju();
-            return predmet;
-        }
-
-        public PredmetModel DajPredmetPoNazivu(string nazivPredmeta)
-        {
-            PredmetModel predmet = null;
-            konekcija.OtvoriKonekciju();
-            using SqlCommand komanda = new SqlCommand("DajPredmetPoNazivu", konekcija.DajKonekciju());
-            komanda.CommandType = System.Data.CommandType.StoredProcedure;
-            komanda.Parameters.AddWithValue("@NazivPredmeta", nazivPredmeta);
             using SqlDataReader reader = komanda.ExecuteReader();
             if (reader.Read())
             {

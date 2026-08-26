@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PrezentacioniSloj.ViewModel;
 using SlojPodataka.Kontekst;
 using SlojPodataka.Model;
+using SlojPodataka.Repozitorijum;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,17 +20,20 @@ namespace SlojServisa.Controllers
     public class KorisnikController : ControllerBase
     {
         private readonly AppDbContext _context;
-
+        private readonly KorisnikRepo _KorisnikRepo;
         public KorisnikController(AppDbContext context)
         {
             _context = context;
+            _KorisnikRepo = new KorisnikRepo(context);
         }
 
         // GET: api/Korisnik
         [HttpGet]
         public async Task<IActionResult> DajSve()
         {
-            List<KorisnikViewModel> korisnici = await _context.KorisnikModelObjektiDBSet
+            List<KorisnikModel> korsicnici = await _KorisnikRepo.DajSve();
+
+            List<KorisnikViewModel> korisniciModel = korsicnici
                 .Select(k => new KorisnikViewModel
                 {
                     ID = k.ID,
@@ -39,65 +43,33 @@ namespace SlojServisa.Controllers
                     Email = k.Email,
                     Uloga = k.Uloga
                 })
-                .ToListAsync();
+                .ToList();
 
-            return Ok(korisnici);
+            return Ok(korisniciModel);
         }
 
         // GET: api/Korisnik/5
         [HttpGet("{id}")]
         public async Task<IActionResult> DajPoId(int id)
         {
-            var korisnikModel = await _context.KorisnikModelObjektiDBSet.FindAsync(id);
+            KorisnikModel korisnik = await _KorisnikRepo.DajPoId(id);
 
-            if (korisnikModel == null)
+            if (korisnik == null)
             {
                 return NotFound();
             }
 
             KorisnikViewModel korisnikViewModel = new KorisnikViewModel
             {
-                ID = korisnikModel.ID,
-                KorisnickoIme = korisnikModel.KorisnickoIme,
-                Ime = korisnikModel.Ime,
-                Prezime = korisnikModel.Prezime,
-                Email = korisnikModel.Email,
-                Uloga = korisnikModel.Uloga
+                ID = korisnik.ID,
+                KorisnickoIme = korisnik.KorisnickoIme,
+                Ime = korisnik.Ime,
+                Prezime = korisnik.Prezime,
+                Email = korisnik.Email,
+                Uloga = korisnik.Uloga
             };
 
-            return Ok(korisnikModel);
-        }
-
-
-        //Prijava korisnika
-        [HttpPost("Prijava")]
-        public async Task<IActionResult> Prijava(PrijavaViewModel prijavaViewModel)
-        {
-            KorisnikModel korisnik = await _context.KorisnikModelObjektiDBSet
-                .FirstOrDefaultAsync(
-                k => k.Email == prijavaViewModel.EmailIliKorisnickoIme || 
-                k.KorisnickoIme == prijavaViewModel.EmailIliKorisnickoIme);
-
-            //KorisnikModel korisnik = await _context.KorisnikModelObjektiDBSet.FirstOrDefaultAsync(k => k.Email == email);
-
-            if (korisnik == null)
-            {
-                return NotFound("Korisnik sa datim emailom i lozinkom ne postoji.");
-
-            } else
-            {
-                KorisnikViewModel korisnikViewModel = new KorisnikViewModel
-                {
-                    ID = korisnik.ID,
-                    KorisnickoIme = korisnik.KorisnickoIme,
-                    Ime = korisnik.Ime,
-                    Prezime = korisnik.Prezime,
-                    Email = korisnik.Email,
-                    Uloga = korisnik.Uloga
-                };
-
-                return Ok(korisnikViewModel);
-            }
+            return Ok(korisnikViewModel);
         }
 
         // PUT: api/Korisnik/5
@@ -106,30 +78,37 @@ namespace SlojServisa.Controllers
         public async Task<IActionResult> Izmeni(int id, KorisnikViewModel korisnikModel)
         {
 
-            KorisnikModel korisnik = await _context.KorisnikModelObjektiDBSet.FindAsync(id);
+            KorisnikModel korisnik = await _KorisnikRepo.DajPoId(id);
 
             if(korisnik == null)
             {
                 return NotFound();
             } else
             {
-                korisnik.ID = korisnikModel.ID;
-                korisnik.KorisnickoIme = korisnikModel.KorisnickoIme;
-                korisnik.Ime = korisnikModel.Ime;
-                korisnik.Prezime = korisnikModel.Prezime;
-                korisnik.Email = korisnikModel.Email;
+                KorisnikModel korisnikSaIzmenama = new KorisnikModel
+                {
+                    ID = korisnikModel.ID,
+                    KorisnickoIme = korisnikModel.KorisnickoIme,
+                    Ime = korisnikModel.Ime,
+                    Prezime = korisnikModel.Prezime,
+                    Email = korisnikModel.Email,
+                    Uloga = korisnikModel.Uloga
+                };
+
                 
                 if(!FunkcijeLozinke.VerifikujLozinku(korisnikModel.Lozinka, korisnik.PasswordHash, korisnik.PasswordSalt))
                 {
                     byte[] LozinkaSalt;
                     byte[] LozinkaHash;
                     FunkcijeLozinke.KreirajHash(korisnikModel.Lozinka, out LozinkaHash, out LozinkaSalt);
-                    korisnik.PasswordHash = LozinkaHash;
-                    korisnik.PasswordSalt = LozinkaSalt;
+                    korisnikSaIzmenama.PasswordHash = LozinkaHash;
+                    korisnikSaIzmenama.PasswordSalt = LozinkaSalt;
                 } else
                 {
                     return BadRequest("Lozinka nije validna.");
                 }
+
+                _KorisnikRepo.Izmeni(id, korisnikSaIzmenama);
 
                 _context.Entry(korisnik).State = EntityState.Modified;
             }
@@ -157,13 +136,13 @@ namespace SlojServisa.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Obrisi(int id)
         {
-            var korisnikModel = await _context.KorisnikModelObjektiDBSet.FindAsync(id);
+            var korisnikModel = await _KorisnikRepo.DajPoId(id);
             if (korisnikModel == null)
             {
                 return NotFound();
             }
 
-            _context.KorisnikModelObjektiDBSet.Remove(korisnikModel);
+            _KorisnikRepo.Obrisi(id);
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -214,8 +193,9 @@ namespace SlojServisa.Controllers
                     Uloga = korisnikModel.Uloga
                 };
 
+                _KorisnikRepo.Dodaj(korisnikModel);
 
-                _context.KorisnikModelObjektiDBSet.Add(korisnikModel);
+
                 await _context.SaveChangesAsync();
 
                 return Ok(korisnikViewModel);
@@ -226,6 +206,51 @@ namespace SlojServisa.Controllers
                 return BadRequest("Lozinka nije validna.");
             }
 
+        }
+
+        //Prijava korisnika
+        [HttpPost("Prijava")]
+        public async Task<IActionResult> Prijava(PrijavaViewModel prijavaViewModel)
+        {
+            List<KorisnikModel> korisnici = await _KorisnikRepo.DajSve();
+            KorisnikModel korisnik = korisnici
+                .FirstOrDefault(
+                k => k.Email == prijavaViewModel.EmailIliKorisnickoIme ||
+                k.KorisnickoIme == prijavaViewModel.EmailIliKorisnickoIme);
+
+            if (korisnik == null)
+            {
+                Debug.WriteLine("Nije pronadjen korisnik");
+                return NotFound("Korisnik sa datim emailom i lozinkom ne postoji.");
+
+            }
+            else
+            {
+
+                if (FunkcijeLozinke.VerifikujLozinku(prijavaViewModel.Lozinka, korisnik.PasswordHash, korisnik.PasswordSalt))
+                {
+                    Debug.WriteLine("Korisnik lozinka = " + prijavaViewModel.Lozinka);
+                    KorisnikViewModel korisnikViewModel = new KorisnikViewModel
+                    {
+                        ID = korisnik.ID,
+                        KorisnickoIme = korisnik.KorisnickoIme,
+                        Ime = korisnik.Ime,
+                        Prezime = korisnik.Prezime,
+                        Email = korisnik.Email,
+                        Uloga = korisnik.Uloga
+                    };
+
+                    return Ok(korisnikViewModel);
+                }
+                else
+                {
+                    Debug.WriteLine("Korisnik lozinka = " + prijavaViewModel.Lozinka);
+                    Debug.WriteLine("Korisnik hash = " + korisnik.PasswordHash.Length);
+                    Debug.WriteLine("Korisnik salt = " + korisnik.PasswordSalt.Length);
+                    return NotFound("Korisnik sa datim emailom i lozinkom ne postoji.");
+                }
+
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PrezentacioniSloj.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -110,7 +111,7 @@ namespace PrezentacioniSloj.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Izmeni(int id, [Bind("ID,Ime,Prezime,KorisnickoIme,Email,PasswordSalt,PasswordHash,Uloga")] KorisnikViewModel korisnikModel)
+        public async Task<IActionResult> Izmeni(int id, [Bind("ID,Ime,Prezime,KorisnickoIme,Email,Lozinka,Uloga")] KorisnikViewModel korisnikModel)
         {
             if (id != korisnikModel.ID)
             {
@@ -202,7 +203,8 @@ namespace PrezentacioniSloj.Controllers
                     korisnikModel = await odgovor.Content.ReadFromJsonAsync<KorisnikViewModel>();
 
                     HttpContext.Session.SetInt32("KorisnikId", korisnikModel.ID);
-                    return RedirectToAction(nameof(Index));
+                    HttpContext.Session.SetString("KorisnikUloga", korisnikModel.Uloga);
+                    return RedirectToAction(nameof(Index),"Pocetna");
                 } else
                 {
                     ModelState.AddModelError(string.Empty, "Došlo je do greške prilikom registracije. Molimo pokušajte ponovo.");
@@ -237,9 +239,13 @@ namespace PrezentacioniSloj.Controllers
                 if (odgovor.IsSuccessStatusCode)
                 {
                     KorisnikViewModel korisnik = await odgovor.Content.ReadFromJsonAsync<KorisnikViewModel>();
+
+                    Debug.WriteLine("KorisnikID = " + korisnik.ID);
+                    Debug.WriteLine("Korisnik Uloga = " + korisnik.Uloga);
+
                     HttpContext.Session.SetInt32("KorisnikId", korisnik.ID);
                     HttpContext.Session.SetString("KorisnikUloga", korisnik.Uloga);
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index),"Pocetna");
                 } else
                 {
                     return BadRequest("Pogrešan email ili lozinka.");

@@ -13,10 +13,13 @@
         <div class="card-header">Podaci o takmičenju</div>
         <div class="card-body">
             <div class="row">
+
+
                 <div class="col-md-6 mb-3">
                     <label asp-for="Takmicenje.NazivTakmicenja" class="form-label"></label>
                     <input asp-for="Takmicenje.NazivTakmicenja" class="form-control" required />
                     <span asp-validation-for="Takmicenje.NazivTakmicenja" class="text-danger"></span>
+                    <input asp-for="Takmicenje.KorisnikID" value="@Context.Session.GetInt32("KorisnikId")" hidden/>
                 </div>
 
                 <div class="col-md-6 mb-3">

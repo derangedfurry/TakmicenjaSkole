@@ -1,25 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Nagrade>
   <Nagrada>
-    <Broj>1</Broj>
+    <ID>1</ID>
     <Naziv>Prva nagrada</Naziv>
     <Maksimum>100</Maksimum>
     <Minimum>91</Minimum>
   </Nagrada>
   <Nagrada>
-    <Broj>2</Broj>
+    <ID>2</ID>
     <Naziv>Druga nagrada</Naziv>
     <Maksimum>90</Maksimum>
     <Minimum>75</Minimum>
   </Nagrada>
   <Nagrada>
-    <Broj>3</Broj>
+    <ID>3</ID>
     <Naziv>Treća nagrada</Naziv>
     <Maksimum>74</Maksimum>
-    <Minimum>50</Minimum>
+    <Minimum>51</Minimum>
   </Nagrada>
   <Nagrada>
-    <Broj>4</Broj>
+    <ID>4</ID>
     <Naziv>Pohvalnica</Naziv>
+    <Maksimum>50</Maksimum>
+    <Minimum>0</Minimum>
   </Nagrada>
 </Nagrade>

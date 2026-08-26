@@ -35,5 +35,7 @@ namespace SlojPodataka.Model
         [StringLength(50)]
         public string LokacijaTakmicenja { get; set; } = string.Empty;
 
+        [Required]
+        public int KorisnikID { get; set; }
     }
 }

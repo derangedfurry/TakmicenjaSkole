@@ -21,20 +21,21 @@ namespace SlojPodataka.Repozitorijum
         {
             if (takmicenjeModel == null) return;
             kontekst.TakmicenjaModelObjektiDBSet.Add(takmicenjeModel);
-            kontekst.SaveChanges();
+            //kontekst.SaveChanges();
         }
 
-        public void Izmeni(TakmicenjeModel takmicenjeModel)
+        public void Izmeni(int id, TakmicenjeModel takmicenjeModel)
         {
             if (takmicenjeModel == null) return;
-            var takmicenje = kontekst.TakmicenjaModelObjektiDBSet.Find(takmicenjeModel.ID);
+            var takmicenje = kontekst.TakmicenjaModelObjektiDBSet.Find(id);
             if (takmicenje == null) return;
             takmicenje.DatumTakmicenja = takmicenjeModel.DatumTakmicenja;
             takmicenje.IDPredmeta = takmicenjeModel.IDPredmeta;
             takmicenje.NazivTakmicenja = takmicenjeModel.NazivTakmicenja;
             takmicenje.LokacijaTakmicenja = takmicenjeModel.LokacijaTakmicenja;
             takmicenje.TipTakmicenja = takmicenjeModel.TipTakmicenja;
-            kontekst.SaveChanges();
+            takmicenje.KorisnikID = takmicenjeModel.KorisnikID;
+            //kontekst.SaveChanges();
         }
 
         public void Obrisi(int id)
@@ -42,22 +43,26 @@ namespace SlojPodataka.Repozitorijum
             var takmicenje = kontekst.TakmicenjaModelObjektiDBSet.Find(id);
             if (takmicenje == null) return;
             kontekst.TakmicenjaModelObjektiDBSet.Remove(takmicenje);
-            kontekst.SaveChanges();
+            //kontekst.SaveChanges();
         }
 
-        public List<TakmicenjeModel> DajSvaTakmicenjaSortiranPoDatumu()
+        public List<TakmicenjeModel> DajSvePoDatumu()
         {
             return kontekst.TakmicenjaModelObjektiDBSet.OrderBy(t => t.DatumTakmicenja).ToList();
         }
 
-        public List<TakmicenjeModel> DajSvaTakmicenja()
+        public List<TakmicenjeModel> DajSve()
         {
             return kontekst.TakmicenjaModelObjektiDBSet.ToList();
         }
 
-        public List<TakmicenjeModel> DajSvaTakmicenjaPoPredmetu(string idPredmeta)
+        public List<TakmicenjeModel> DajSvePoPredmetu(string idPredmeta)
         {
             return kontekst.TakmicenjaModelObjektiDBSet.Where(t => t.IDPredmeta == idPredmeta).ToList();
+        }
+        public TakmicenjeModel DajPoId(int id)
+        {
+            return kontekst.TakmicenjaModelObjektiDBSet.Find(id);
         }
     }
 }

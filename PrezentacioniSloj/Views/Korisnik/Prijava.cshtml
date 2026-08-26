@@ -2,19 +2,17 @@
 @model PrijavaViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Prijava";
 }
 
-<h1>Create</h1>
-
-<h4>KorisnikModel</h4>
+<h4>Prijava korisnika</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Prijava">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="EmailIliKorisnickoIme" class="control-label"></label>
+                <label asp-for="EmailIliKorisnickoIme" class="control-label">Email ili korisničko ime</label>
                 <input asp-for="EmailIliKorisnickoIme" class="form-control" />
                 <span asp-validation-for="EmailIliKorisnickoIme" class="text-danger"></span>
             </div>

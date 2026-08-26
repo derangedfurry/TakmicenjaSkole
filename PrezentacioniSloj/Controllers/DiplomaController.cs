@@ -27,14 +27,8 @@ namespace PrezentacioniSloj.Controllers
             return View(diplome);
         }
 
-        public async Task<IActionResult> Lista()
-        {
-            var diplome = await _httpKlient.GetFromJsonAsync<List<DiplomaViewModel>>("api/Diploma");
-            return View(diplome);
-        }
-
         // GET: Diploma/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Detalji(int? id)
         {
             if (id == null)
             {
@@ -53,7 +47,7 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // GET: Diploma/Create
-        public IActionResult Create()
+        public IActionResult Dodaj()
         {
             return View();
         }
@@ -63,7 +57,7 @@ namespace PrezentacioniSloj.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Nagrada,NazivNagrade,ImeUcenika,PrezimeUcenika")] DiplomaViewModel diplomaModel)
+        public async Task<IActionResult> Dodaj([Bind("ID,Nagrada,NazivNagrade,ImeUcenika,PrezimeUcenika,IDUcenika")] DiplomaViewModel diplomaModel)
         {
 
             if (ModelState.IsValid)
@@ -75,7 +69,7 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // GET: Diploma/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Izmeni(int? id)
         {
             if (id == null)
             {
@@ -97,7 +91,7 @@ namespace PrezentacioniSloj.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Nagrada,NazivNagrade,ImeUcenika,PrezimeUcenika")] DiplomaViewModel diplomaModel)
+        public async Task<IActionResult> Izmeni(int id, [Bind("ID,Nagrada,NazivNagrade,ImeUcenika,PrezimeUcenika")] DiplomaViewModel diplomaModel)
         {
             if (id != diplomaModel.ID)
             {
@@ -112,7 +106,7 @@ namespace PrezentacioniSloj.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DiplomaModelExists(diplomaModel.ID))
+                    if (!Postoji(diplomaModel.ID))
                     {
                         return NotFound();
                     }
@@ -127,7 +121,7 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // GET: Diploma/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Obrisi(int? id)
         {
             if (id == null)
             {
@@ -144,9 +138,9 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: Diploma/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Obrisi")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> ObrisiPotvrda(int id)
         {
             var diplomaModel = await _httpKlient.GetFromJsonAsync<DiplomaViewModel>($"api/Diploma/{id}");
             if (diplomaModel != null)
@@ -157,7 +151,35 @@ namespace PrezentacioniSloj.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool DiplomaModelExists(int id)
+        [HttpGet]
+        public async Task<IActionResult> PrikaziDiplomu(int id)
+        {
+
+            var sve = await _httpKlient.GetFromJsonAsync<List<DiplomaViewModel>>("api/Diploma")
+           ?? new List<DiplomaViewModel>();
+            var diploma = sve.FirstOrDefault(d => d.ID == id);
+
+            if (diploma == null)
+                return NotFound();
+
+            return View(diploma);   // Views/.../PrikaziDiplomu.cshtml
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PrikaziPohvalnicu(int id)
+        {
+
+            var sve = await _httpKlient.GetFromJsonAsync<List<DiplomaViewModel>>("api/Diploma")
+           ?? new List<DiplomaViewModel>();
+            var diploma = sve.FirstOrDefault(d => d.ID == id);
+
+            if (diploma == null)
+                return NotFound();
+
+            return View(diploma);   // Views/.../PrikaziDiplomu.cshtml
+        }
+
+        private bool Postoji(int id)
         {
             return _httpKlient.GetFromJsonAsync<List<DiplomaViewModel>>("api/Diploma").Result != null;
         }
