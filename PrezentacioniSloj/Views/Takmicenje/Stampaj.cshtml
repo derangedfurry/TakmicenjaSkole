@@ -1,0 +1,157 @@
+﻿@model List<PrezentacioniSloj.ViewModel.RezultatViewModel>
+
+@{
+    Layout = null;   // clean page for printing
+    ViewData["Title"] = "Štampanje rezultata";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Rezultati takmičenja</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            padding: 20px;
+            font-size: 12pt;
+        }
+
+        h1 {
+            font-size: 18pt;
+            margin-bottom: 10px;
+        }
+
+        .takmicenje-block {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+
+        .takmicenje-header {
+            font-weight: bold;
+            font-size: 13pt;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+
+        th, td {
+            border: 1px solid #333;
+            padding: 4px 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #eee;
+        }
+
+        .filter-info {
+            margin-bottom: 15px;
+            font-size: 10pt;
+            color: #555;
+        }
+
+        .no-print {
+            margin-bottom: 15px;
+        }
+
+        @@Media print {
+            .no-print
+
+        {
+            display: none !important;
+        }
+
+        body {
+            padding: 0;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn btn-primary" onclick="window.print()">Štampaj</button>
+        <button class="btn btn-secondary" onclick="window.close()">Zatvori</button>
+    </div>
+
+    <h1>Rezultati takmičenja</h1>
+    <div class="filter-info">
+        Datum štampe: @DateTime.Now.ToString("dd.MM.yyyy HH:mm")
+        @if (Context.Request.Query.Any(q => !string.IsNullOrEmpty(q.Value)))
+        {
+            <span> | Filtrirano</span>
+        }
+        else
+        {
+            <span> | Kompletna lista</span>
+        }
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <p>Nema podataka za prikaz.</p>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            <div class="takmicenje-block">
+                <div class="takmicenje-header">
+                    @item.Takmicenje.NazivTakmicenja
+                    &nbsp;|&nbsp;
+                    @item.Takmicenje.DatumTakmicenja.ToString("dd.MM.yyyy HH:mm")
+                    @if (!string.IsNullOrEmpty(item.Takmicenje.NazivPredmetaTakmicenja))
+                    {
+                        <span>&nbsp;|&nbsp; @item.Takmicenje.NazivPredmetaTakmicenja</span>
+                    }
+                    @if (!string.IsNullOrEmpty(item.Takmicenje.TipTakmicenja))
+                    {
+                        <span>&nbsp;|&nbsp; @item.Takmicenje.TipTakmicenja</span>
+                    }
+                </div>
+
+                @if (item.Ucenik == null || !item.Ucenik.Any())
+                {
+                    <p><em>Nema prijavljenih učenika.</em></p>
+                }
+                else
+                {
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Šifra</th>
+                                <th>Ime</th>
+                                <th>Prezime</th>
+                                <th>Broj bodova</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var u in item.Ucenik)
+                            {
+                                <tr>
+                                    <td>@u.SifraUcenika</td>
+                                    <td>@u.Ime</td>
+                                    <td>@u.Prezime</td>
+                                    <td>@u.BrojBodova</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        }
+    }
+
+    <script>
+        // Optional: open print dialog automatically
+        // window.onload = () => window.print();
+    </script>
+</body>
+</html>
