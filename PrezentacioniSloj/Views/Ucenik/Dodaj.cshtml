@@ -1,0 +1,93 @@
+﻿@model PrezentacioniSloj.ViewModel.DodajUcenikaViewModel
+
+@{
+    ViewData["Title"] = "Dodaj";
+}
+
+<h1>Dodaj</h1>
+<h4>Učenik</h4>
+<hr />
+
+<div class="row justify-content-between">
+    <div class="col-md-4">
+        <form asp-action="Dodaj" method="post" id="ucenikForm" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ucenik.SifraUcenika" class="control-label"></label>
+                <input asp-for="Ucenik.SifraUcenika"
+                       class="form-control"
+                       maxlength="5"
+                       minlength="5"
+                       required
+                       placeholder="ABCDE" />
+                <span asp-validation-for="Ucenik.SifraUcenika" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ucenik.Ime" class="control-label"></label>
+                <input asp-for="Ucenik.Ime" class="form-control" required />
+                <span asp-validation-for="Ucenik.Ime" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ucenik.Prezime" class="control-label"></label>
+                <input asp-for="Ucenik.Prezime" class="form-control" required />
+                <span asp-validation-for="Ucenik.Prezime" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ucenik.BrojBodova" class="control-label"></label>
+                <input asp-for="Ucenik.BrojBodova"
+                       class="form-control"
+                       type="number"
+                       min="0"
+                       max="100"
+                       required />
+                <span asp-validation-for="Ucenik.BrojBodova" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ucenik.IDTakmicenja" class="control-label">Takmičenje</label>
+                <select asp-for="Ucenik.IDTakmicenja" class="form-select" required
+                        asp-items="@(new SelectList(Model.Takmicenje, "ID", "NazivTakmicenja"))">
+                    <option value="">-- Izaberite takmičenje --</option>
+                </select>
+                <span asp-validation-for="Ucenik.IDTakmicenja" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Dodaj" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Takmičenje ID</th>
+                    <th>Naziv takmičenja</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Takmicenje)
+                {
+                    <tr>
+                        <td>@item.ID</td>
+                        <td>@item.NazivTakmicenja</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Nazad do liste</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/ucenik-validation.js" asp-append-version="true"></script>
+}

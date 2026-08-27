@@ -1,0 +1,67 @@
+﻿@model IEnumerable<PrezentacioniSloj.ViewModel.TakmicenjeViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Takmičenja</h1>
+
+<p>
+    <a asp-action="DodajRezultat" class="btn btn-primary">Dodaj novo takmičenje</a>
+</p>
+
+<!-- ==================== DATE FILTER ==================== -->
+<form asp-action="Index" method="get" class="row g-3 mb-4">
+    <div class="col-auto">
+        <label class="form-label">Od datuma</label>
+        <input type="date" name="odDatuma" value="@Context.Request.Query["odDatuma"]" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <label class="form-label">Do datuma</label>
+        <input type="date" name="doDatuma" value="@Context.Request.Query["doDatuma"]" class="form-control" />
+    </div>
+    <div class="col-auto d-flex align-items-end">
+        <button type="submit" class="btn btn-secondary me-2">Filtriraj</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Poništi</a>
+    </div>
+</form>
+
+<!-- ==================== TABLE ==================== -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.ID)</th>
+            <th>@Html.DisplayNameFor(model => model.DatumTakmicenja)</th>
+            <th>@Html.DisplayNameFor(model => model.NazivPredmetaTakmicenja)</th>
+            <th>@Html.DisplayNameFor(model => model.NazivTakmicenja)</th>
+            <th>@Html.DisplayNameFor(model => model.TipTakmicenja)</th>
+            <th>@Html.DisplayNameFor(model => model.LokacijaTakmicenja)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.ID)</td>
+                <td>@item.DatumTakmicenja.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@Html.DisplayFor(modelItem => item.NazivPredmetaTakmicenja)</td>
+                <td>@Html.DisplayFor(modelItem => item.NazivTakmicenja)</td>
+                <td>@Html.DisplayFor(modelItem => item.TipTakmicenja)</td>
+                <td>@Html.DisplayFor(modelItem => item.LokacijaTakmicenja)</td>
+                <td>
+
+                        <a asp-action="Izmeni" asp-route-id="@item.ID">Izmeni</a>
+                        <a asp-action="Detalji" asp-route-id="@item.ID">Detalji</a>
+                        <a asp-action="Obrisi" asp-route-id="@item.ID">Obriši</a>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Nema takmičenja za izabrani period.</div>
+}

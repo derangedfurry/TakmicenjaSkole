@@ -1,0 +1,163 @@
+﻿@model List<PrezentacioniSloj.ViewModel.RezultatViewModel>
+
+@{
+    ViewData["Title"] = "Rezultati takmičenja";
+    var odDatuma = Context.Request.Query["odDatuma"].ToString();
+    var doDatuma = Context.Request.Query["doDatuma"].ToString();
+    var predmet = Context.Request.Query["predmet"].ToString();
+    var tip = Context.Request.Query["tip"].ToString();
+    var isLoggedIn = !string.IsNullOrEmpty(Context.Session.GetString("KorisnikId"));
+}
+
+<h1>Rezultati takmičenja</h1>
+
+<!-- ==================== FILTERS ==================== -->
+<form asp-action="Rezultati" method="get" class="card card-body mb-4">
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label">Od datuma</label>
+            <input type="date" name="odDatuma" value="@odDatuma" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Do datuma</label>
+            <input type="date" name="doDatuma" value="@doDatuma" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Predmet</label>
+            <input type="text" name="predmet" value="@predmet" class="form-control"
+                   placeholder="Naziv predmeta..." />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Tip takmičenja</label>
+            <input type="text" name="tip" value="@tip" class="form-control"
+                   placeholder="Tip..." />
+        </div>
+    </div>
+    <div class="mt-3 d-flex gap-2">
+        <button type="submit" class="btn btn-secondary">Filtriraj</button>
+        <a asp-action="Rezultati" class="btn btn-outline-secondary">Poništi filter</a>
+        <a asp-action="Stampaj"
+           asp-route-odDatuma="@odDatuma"
+           asp-route-doDatuma="@doDatuma"
+           asp-route-predmet="@predmet"
+           asp-route-tip="@tip"
+           class="btn btn-success"
+           target="_blank">
+            Štampaj
+        </a>
+    </div>
+</form>
+
+<!-- ==================== ACCORDION ==================== -->
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">Nema takmičenja za prikaz.</div>
+}
+else
+{
+    <div class="accordion" id="takmicenjaAccordion">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var item = Model[i];
+            var headingId = $"heading{i}";
+            var collapseId = $"collapse{i}";
+
+            <div class="accordion-item mb-2">
+                <h2 class="accordion-header" id="@headingId">
+                    <button class="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@collapseId"
+                            aria-expanded="false"
+                            aria-controls="@collapseId">
+                        <div class="d-flex flex-wrap align-items-center gap-2 w-100 pe-3">
+                            <strong>@item.Takmicenje.NazivTakmicenja</strong>
+
+                            <span class="text-muted">
+                                @item.Takmicenje.DatumTakmicenja.ToString("dd.MM.yyyy HH:mm")
+                            </span>
+
+                            @if (!string.IsNullOrEmpty(item.Takmicenje.NazivPredmetaTakmicenja))
+                            {
+                                <span class="badge bg-secondary">
+                                    @item.Takmicenje.NazivPredmetaTakmicenja
+                                </span>
+                            }
+
+                            @if (!string.IsNullOrEmpty(item.Takmicenje.TipTakmicenja))
+                            {
+                                <span class="badge bg-info text-dark">
+                                    @item.Takmicenje.TipTakmicenja
+                                </span>
+                            }
+
+                            @if (!string.IsNullOrEmpty(item.Takmicenje.LokacijaTakmicenja))
+                            {
+                                <span class="badge bg-light text-dark border">
+                                    @item.Takmicenje.LokacijaTakmicenja
+                                </span>
+                            }
+                        </div>
+                    </button>
+                </h2>
+
+                <div id="@collapseId" class="accordion-collapse collapse"
+                     aria-labelledby="@headingId"
+                     data-bs-parent="#takmicenjaAccordion">
+                    <div class="accordion-body">
+                        @if (item.Ucenik == null || !item.Ucenik.Any())
+                        {
+                            <p class="text-muted mb-0 text-center">Nema prijavljenih učenika.</p>
+                        }
+                        else
+                        {
+                            <table class="table table-sm table-striped mb-0 text-center">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Šifra</th>
+                                        <th class="text-center">Ime</th>
+                                        <th class="text-center">Prezime</th>
+                                        <th class="text-center">Broj bodova</th>
+                                        @if (isLoggedIn)
+                                        {
+                                            <th class="text-center">Diploma</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ucenik in item.Ucenik)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@ucenik.SifraUcenika</td>
+                                            <td class="text-center">@ucenik.Ime</td>
+                                            <td class="text-center">@ucenik.Prezime</td>
+                                            <td class="text-center">@ucenik.BrojBodova</td>
+                                            @if (isLoggedIn)
+                                            {
+                                                <td class="text-center">
+                                                    @if (ucenik.DiplomaID != 0)
+                                                    {
+                                                        <a asp-action="PrikaziDiplomu"
+                                                           asp-controller="Diploma"
+                                                           asp-route-id="@ucenik.DiplomaID"
+                                                           class="btn btn-sm btn-outline-primary"
+                                                           target="_blank">
+                                                            Prikaži diplomu
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">—</span>
+                                                    }
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,65 @@
+﻿@model IEnumerable<PrezentacioniSloj.ViewModel.TakmicenjeViewModel>
+
+@{
+    ViewData["Title"] = "Lista";
+}
+
+<h1>Lista</h1>
+
+<p>
+    <a asp-action="Dodaj">Dodaj novo takmičenje</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DatumTakmicenja)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NazivPredmetaTakmicenja)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NazivTakmicenja)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TipTakmicenja)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LokacijaTakmicenja)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DatumTakmicenja)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NazivPredmetaTakmicenja)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NazivTakmicenja)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TipTakmicenja)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LokacijaTakmicenja)
+            </td>
+            <td>
+                    @Html.ActionLink("Izmeni", "Izmeni", new { id = item.ID }) |
+                    @Html.ActionLink("Detalji", "Detalji", new { id = item.ID }) |
+                    @Html.ActionLink("Obrisi", "Obrisi", new { id = item.ID })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

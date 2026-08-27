@@ -1,0 +1,33 @@
+﻿@using PrezentacioniSloj.ViewModel
+@model PrijavaViewModel
+
+@{
+    ViewData["Title"] = "Prijava";
+}
+
+<h4>Prijava korisnika</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Prijava">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="EmailIliKorisnickoIme" class="control-label">Email ili korisničko ime</label>
+                <input asp-for="EmailIliKorisnickoIme" class="form-control" />
+                <span asp-validation-for="EmailIliKorisnickoIme" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Lozinka" class="control-label"></label>
+                <input asp-for="Lozinka" class="form-control" type="password"/>
+                <span asp-validation-for="Lozinka" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Prijava" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

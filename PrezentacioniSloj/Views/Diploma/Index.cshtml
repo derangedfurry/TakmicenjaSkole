@@ -1,0 +1,43 @@
+﻿@model IEnumerable<PrezentacioniSloj.ViewModel.DiplomaViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Lista diploma</h1>
+
+<table class="table table-striped text-center">
+    <thead>
+        <tr>
+            <th class="text-center">@Html.DisplayNameFor(model => model.ID)</th>
+            <th class="text-center">@Html.DisplayNameFor(model => model.Nagrada)</th>
+            <th class="text-center">@Html.DisplayNameFor(model => model.NazivNagrade)</th>
+            <th class="text-center">@Html.DisplayNameFor(model => model.ImeUcenika)</th>
+            <th class="text-center">@Html.DisplayNameFor(model => model.PrezimeUcenika)</th>
+            <th class="text-center">@Html.DisplayNameFor(model => model.IDUcenika)</th>
+            <th class="text-center">Diploma</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="text-center">@Html.DisplayFor(modelItem => item.ID)</td>
+                <td class="text-center">@Html.DisplayFor(modelItem => item.Nagrada)</td>
+                <td class="text-center">@Html.DisplayFor(modelItem => item.NazivNagrade)</td>
+                <td class="text-center">@Html.DisplayFor(modelItem => item.ImeUcenika)</td>
+                <td class="text-center">@Html.DisplayFor(modelItem => item.PrezimeUcenika)</td>
+                <td class="text-center">@Html.DisplayFor(modelItem => item.IDUcenika)</td>
+                <td class="text-center">
+                    <a asp-action="PrikaziDiplomu"
+                       asp-controller="Diploma"
+                       asp-route-id="@item.ID"
+                       class="btn btn-sm btn-outline-primary"
+                       target="_blank">
+                        Prikaži diplomu
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

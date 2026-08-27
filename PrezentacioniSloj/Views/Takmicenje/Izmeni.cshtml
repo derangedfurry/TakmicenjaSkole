@@ -1,0 +1,82 @@
+﻿@using PrezentacioniSloj.ViewModel
+@model PrezentacioniSloj.ViewModel.TakmicenjeViewModel
+
+@{
+    ViewData["Title"] = "Izmeni";
+    var predmeti = ViewBag.Predmeti as List<PredmetViewModel> ?? new List<PredmetViewModel>();
+}
+
+<h1>Izmeni takmičenje</h1>
+<hr />
+
+<form asp-action="Izmeni" method="post" id="takmicenjeEditForm" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @* ID must be posted *@
+    <input type="hidden" asp-for="ID" />
+
+    <div class="card mb-4">
+        <div class="card-header">Podaci o takmičenju</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ID" class="form-label"></label>
+                    <input asp-for="ID" class="form-control" disabled />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="NazivTakmicenja" class="form-label"></label>
+                    <input asp-for="NazivTakmicenja" class="form-control" required />
+                    <span asp-validation-for="NazivTakmicenja" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DatumTakmicenja" class="form-label"></label>
+                    <input asp-for="DatumTakmicenja"
+                           class="form-control"
+                           type="datetime-local"
+                           required />
+                    <span asp-validation-for="DatumTakmicenja" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="NazivPredmetaTakmicenja" class="form-label">Predmet</label>
+                    <select asp-for="NazivPredmetaTakmicenja"
+                            class="form-select"
+                            required
+                            asp-items="@(new SelectList(predmeti, "NazivPredmeta", "NazivPredmeta", Model.NazivPredmetaTakmicenja))">
+                        <option value="">-- Izaberite predmet --</option>
+                    </select>
+                    <span asp-validation-for="NazivPredmetaTakmicenja" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LokacijaTakmicenja" class="form-label">Lokacija takmičenja</label>
+                    <input asp-for="LokacijaTakmicenja" class="form-control" required />
+                    <span asp-validation-for="LokacijaTakmicenja" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TipTakmicenja" class="form-label">Tip takmičenja</label>
+                    <select asp-for="TipTakmicenja" class="form-select" required>
+                        <option value="">-- Izaberite tip --</option>
+                        <option value="Školski nivo">Školski nivo</option>
+                        <option value="Opštinski nivo">Opštinski nivo</option>
+                        <option value="Okružni nivo">Okružni nivo</option>
+                        <option value="Republički nivo">Republički nivo</option>
+                        <option value="Međunarodni nivo">Međunarodni nivo</option>
+                    </select>
+                    <span asp-validation-for="TipTakmicenja" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Sačuvaj</button>
+    <a asp-action="Index" class="btn btn-secondary">Nazad</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/takmicenje-validacija.js" asp-append-version="true"></script>
+}
