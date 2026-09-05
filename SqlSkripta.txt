@@ -1,0 +1,118 @@
+CREATE DATABASE SkolaTakmicenja
+
+USE SkolaTakmicenja
+GO
+
+CREATE TABLE [dbo].[Diploma] (
+    [ID]        INT IDENTITY (1, 1) NOT NULL,
+    [IDUcenika] INT NOT NULL,
+    [Nagrada]   INT NOT NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC),
+    FOREIGN KEY ([IDUcenika]) REFERENCES [dbo].[Ucenik] ([ID]) ON DELETE CASCADE
+);
+
+CREATE TABLE [dbo].[Korisnik] (
+    [ID]            INT           IDENTITY (1, 1) NOT NULL,
+    [Ime]           NVARCHAR (30) NOT NULL,
+    [Prezime]       NVARCHAR (30) NOT NULL,
+    [KorisnickoIme] NVARCHAR (30) NOT NULL,
+    [Email]         NVARCHAR (50) NOT NULL,
+    [PasswordSalt]  BINARY (64)   NOT NULL,
+    [PasswordHash]  BINARY (64)   NOT NULL,
+    [Uloga]         NVARCHAR (10) NOT NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC)
+);
+
+
+CREATE TABLE [dbo].[predmet] (
+    [ID]            CHAR (5)      NOT NULL,
+    [NazivPredmeta] NVARCHAR (50) NOT NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC)
+);
+
+CREATE TABLE [dbo].[Ucenik] (
+    [ID]           INT           IDENTITY (1, 1) NOT NULL,
+    [SifraUcenika] CHAR (5)      NOT NULL,
+    [Ime]          NVARCHAR (30) NOT NULL,
+    [Prezime]      NVARCHAR (30) NOT NULL,
+    [brojBodova]   INT           NOT NULL,
+    [IDTakmicenja] INT           NOT NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC),
+    FOREIGN KEY ([IDTakmicenja]) REFERENCES [dbo].[Takmicenje] ([ID]) ON DELETE CASCADE
+);
+
+
+CREATE TABLE [dbo].[Takmicenje] (
+    [ID]                 INT           IDENTITY (1, 1) NOT NULL,
+    [DatumTakmicenja]    DATETIME2 (7) NOT NULL,
+    [IDPredmeta]         CHAR (5)      NOT NULL,
+    [NazivTakmicenja]    NVARCHAR (30) NOT NULL,
+    [TipTakmicenja]      NVARCHAR (30) NOT NULL,
+    [LokacijaTakmicenja] NVARCHAR (50) NOT NULL,
+    [KorisnikID]         INT           NOT NULL,
+    PRIMARY KEY CLUSTERED ([ID] ASC),
+    FOREIGN KEY ([IDPredmeta]) REFERENCES [dbo].[predmet] ([ID]) ON UPDATE CASCADE,
+    FOREIGN KEY ([KorisnikID]) REFERENCES [dbo].[Korisnik] ([ID]) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+create procedure DodajPredmet
+(
+	@NazivPredmeta nvarchar(50)
+)
+as
+begin
+	insert into Predmet(NazivPredmeta)
+	values(@NazivPredmeta)
+end
+
+create procedure IzmeniPredmet
+(
+	@Id int,
+	@NazivPredmeta nvarchar(50)
+)
+as
+begin
+	update Predmet
+	set NazivPredmeta = @NazivPredmeta
+	where Id = @Id
+end
+
+create procedure ObrisiPredmet
+(
+	@Id int
+)
+as
+begin
+	delete from Predmet
+	where Id = @Id
+end
+
+create procedure IzmeniPredmet
+(
+	@Id int,
+	@NazivPredmeta nvarchar(50)
+)
+as
+begin
+	update Predmet
+	set NazivPredmeta = @NazivPredmeta
+	where ID = @Id
+end
+
+create procedure DajPredmetPoId
+(
+	@Id int
+)
+as
+begin
+	select * from predmet
+	where Id = @Id
+end
+
+create procedure DajSvePredmete
+
+as
+begin
+	select * from predmet
+
+end
