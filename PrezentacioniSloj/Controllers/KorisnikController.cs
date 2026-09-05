@@ -59,35 +59,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: KorisnikViewModels/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        /*[HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Ime,Prezime,KorisnickoIme,Email,PasswordSalt,PasswordHash,Uloga")] KorisnikViewModel korisnikModel)
-        {
-
-            if (ModelState.IsValid)
-            {
-                byte[] Salt = await _httpKlient.GetFromJsonAsync<byte[]>("api/PoslovnaLogika/Lozinka/GenerisiSalt");
-                byte[] Hash = await _httpKlient.GetFromJsonAsync<byte[]>($"api/PoslovnaLogika/Lozinka/GenerisiHash?lozinka={korisnikModel.Lozinka}&salt={Salt.ToString()}");
-                var korisnik = new KorisnikViewModel
-                {
-                    ID = korisnikModel.ID,
-                    Ime = korisnikModel.Ime,
-                    Prezime = korisnikModel.Prezime,
-                    KorisnickoIme = korisnikModel.KorisnickoIme,
-                    Email = korisnikModel.Email,
-                    PasswordSalt = Salt,
-                    PasswordHash = Hash,
-                    Uloga = korisnikModel.Uloga
-                };
-
-                await _httpKlient.PostAsJsonAsync("api/Korisnik", korisnikModel);
-
-                return RedirectToAction(nameof(Index));
-            }
-            return View(korisnikModel);
-        }*/
 
         // GET: KorisnikViewModels/Edit/5
         public async Task<IActionResult> Izmeni(int? id)
@@ -107,8 +78,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: KorisnikViewModels/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Izmeni(int id, [Bind("ID,Ime,Prezime,KorisnickoIme,Email,Lozinka,Uloga")] KorisnikViewModel korisnikModel)
@@ -167,7 +136,7 @@ namespace PrezentacioniSloj.Controllers
             var korisnikModel = await _httpKlient.GetFromJsonAsync<KorisnikViewModel>($"api/Korisnik/{id}");
             if (korisnikModel != null)
             {
-                await _httpKlient.DeleteFromJsonAsync<KorisnikViewModel>($"api/Korisnik/{id}");
+                await _httpKlient.DeleteAsync($"api/Korisnik/{id}");
             }
             return RedirectToAction(nameof(Index));
         }
@@ -183,8 +152,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: KorisnikViewModels/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registracija([Bind("ID,Ime,Prezime,KorisnickoIme,Email,Lozinka,LozinkaPotvrda,Uloga")] RegistracijaViewModel registracijaViewModel)
@@ -224,8 +191,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: KorisnikViewModels/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Prijava(PrijavaViewModel prijavaViewModel)

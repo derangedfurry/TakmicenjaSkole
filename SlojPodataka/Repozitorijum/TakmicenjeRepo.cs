@@ -35,7 +35,7 @@ namespace SlojPodataka.Repozitorijum
             takmicenje.LokacijaTakmicenja = takmicenjeModel.LokacijaTakmicenja;
             takmicenje.TipTakmicenja = takmicenjeModel.TipTakmicenja;
             takmicenje.KorisnikID = takmicenjeModel.KorisnikID;
-            //kontekst.SaveChanges();
+            kontekst.SaveChanges();
         }
 
         public void Obrisi(int id)
@@ -46,9 +46,9 @@ namespace SlojPodataka.Repozitorijum
             //kontekst.SaveChanges();
         }
 
-        public List<TakmicenjeModel> DajSvePoDatumu()
+        public List<TakmicenjeModel> DajSvePoDatumu(DateTime datum)
         {
-            return kontekst.TakmicenjaModelObjektiDBSet.OrderBy(t => t.DatumTakmicenja).ToList();
+            return kontekst.TakmicenjaModelObjektiDBSet.OrderBy(t => t.DatumTakmicenja == datum).ToList();
         }
 
         public List<TakmicenjeModel> DajSve()
@@ -63,6 +63,11 @@ namespace SlojPodataka.Repozitorijum
         public TakmicenjeModel DajPoId(int id)
         {
             return kontekst.TakmicenjaModelObjektiDBSet.Find(id);
+        }
+
+        public bool Postoji(int id)
+        {
+            return kontekst.TakmicenjaModelObjektiDBSet.Any(e => e.ID == id);
         }
     }
 }

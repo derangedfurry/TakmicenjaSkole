@@ -94,8 +94,6 @@ namespace SlojServisa.Controllers
         }
 
         //Edit
-        // PUT: api/DiplomaModels/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> Izmeni(int id, DiplomaViewModel diplomaModel)
         {
@@ -118,31 +116,12 @@ namespace SlojServisa.Controllers
 
                 _DiplomaRepo.Izmeni(id, diplomaSaIzmenama);
 
-                kontekst.Entry(diploma).State = EntityState.Modified;
-            }
-
-            try
-            {
-                await kontekst.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!Postoji(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
             }
 
             return Ok();
         }
 
         //Create
-        // POST: api/DiplomaModels
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<IActionResult> Dodaj(DiplomaViewModel diplomaModel)
         {
@@ -155,7 +134,6 @@ namespace SlojServisa.Controllers
 
             _DiplomaRepo.Dodaj(diploma);
 
-            await kontekst.SaveChangesAsync();
 
             return Ok();
         }
@@ -171,7 +149,6 @@ namespace SlojServisa.Controllers
             }
 
             _DiplomaRepo.Obrisi(id);
-            await kontekst.SaveChangesAsync();
 
             return Ok();
         }

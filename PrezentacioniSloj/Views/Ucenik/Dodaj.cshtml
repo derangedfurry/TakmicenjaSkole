@@ -10,7 +10,7 @@
 
 <div class="row justify-content-between">
     <div class="col-md-4">
-        <form asp-action="Dodaj" method="post" id="ucenikForm" novalidate>
+        <form asp-action="Dodaj" method="post" id="ucenikForma" novalidate>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group mb-3">
@@ -89,5 +89,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/ucenik-validation.js" asp-append-version="true"></script>
+    <script src="~/js/ucenik-validacija.js" asp-append-version="true"></script>
 }

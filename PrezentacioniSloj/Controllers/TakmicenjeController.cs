@@ -24,12 +24,11 @@ namespace PrezentacioniSloj.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(DateTime? odDatuma, DateTime? doDatuma)
         {
-            // Load all takmičenja from API
             var lista = await _httpKlient
                 .GetFromJsonAsync<List<TakmicenjeViewModel>>("api/Takmicenje")
                 ?? new List<TakmicenjeViewModel>();
 
-            // Apply date filter
+
             if (odDatuma.HasValue)
             {
                 lista = lista
@@ -78,8 +77,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: Takmicenje/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Dodaj([Bind("ID,DatumTakmicenja,NazivPredmetaTakmicenja,NazivTakmicenja,TipTakmicenja,LokacijaTakmicenja,KorisnikID")] TakmicenjeViewModel takmicenjeModel)
@@ -97,7 +94,6 @@ namespace PrezentacioniSloj.Controllers
         public IActionResult DodajRezultat()
         {
             var model = new DodajTakmicenjeViewModel();
-            // Start with one empty student row
             model.Ucenik.Add(new UcenikViewModel());
 
             model.Predmet = _httpKlient.GetFromJsonAsync<List<PredmetViewModel>>("api/Predmet").Result;
@@ -128,7 +124,6 @@ namespace PrezentacioniSloj.Controllers
             
 
 
-            // 1. Create Takmicenje
             var takmicenjeResponse = await _httpKlient.PostAsJsonAsync("api/Takmicenje", model.Takmicenje);
             if (!takmicenjeResponse.IsSuccessStatusCode)
             {
@@ -137,15 +132,11 @@ namespace PrezentacioniSloj.Controllers
                 return View(model);
             }
 
-            // Optionally read the new ID if API returns it
-            // var created = await takmicenjeResponse.Content.ReadFromJsonAsync<TakmicenjeViewModel>();
-
-            // 2. Create all Ucenici
 
             foreach (var ucenik in model.Ucenik)
             {
                 ucenik.IDTakmicenja = _httpKlient.GetFromJsonAsync<List<TakmicenjeViewModel>>("api/Takmicenje").Result.LastOrDefault()?.ID ?? 0;
-                // ucenik.IDTakmicenja = created.ID;   // if needed
+                // ucenik.IDTakmicenja = created.ID;
                 var odgovor = await _httpKlient.PostAsJsonAsync("api/Ucenik", ucenik);
 
                 if (odgovor.IsSuccessStatusCode)
@@ -163,28 +154,6 @@ namespace PrezentacioniSloj.Controllers
             return RedirectToAction("Index");
         }
 
-
-        /*[HttpGet]
-        public IActionResult Rezultati()
-        {
-            List<RezultatViewModel> rezultati = new();
-
-            var takmicenja = _httpKlient.GetFromJsonAsync<List<TakmicenjeViewModel>>("api/Takmicenje").Result;
-
-            foreach (var takmicenje in takmicenja)
-            {
-                var ucenici = _httpKlient.GetFromJsonAsync<List<UcenikViewModel>>($"api/Ucenik/PoTakmicenju/{takmicenje.ID}").Result;
-                var rezultat = new RezultatViewModel
-                {
-                    Takmicenje = takmicenje,
-                    Ucenik = ucenici
-                };
-                rezultati.Add(rezultat);
-            }
-
-            return View(rezultati);
-        }*/
-
         [HttpGet]
         public async Task<IActionResult> Rezultati(
         DateTime? odDatuma,
@@ -199,12 +168,17 @@ namespace PrezentacioniSloj.Controllers
             foreach (var takmicenje in takmicenja)
             {
                 var ucenici = _httpKlient.GetFromJsonAsync<List<UcenikViewModel>>($"api/Ucenik/PoTakmicenju/{takmicenje.ID}").Result;
-                    
+                
+                foreach(var ucenik in ucenici)
+                {
+                    Debug.WriteLine($"Učenik: {ucenik.Ime} {ucenik.Prezime}, Broj bodova: {ucenik.BrojBodova}, Takmičenje ID: {ucenik.IDTakmicenja} DiplomaID: {ucenik.DiplomaID}");
+                }
                 var rezultat = new RezultatViewModel
                 {
                     Takmicenje = takmicenje,
                     Ucenik = ucenici
                 };
+
                 rezultati.Add(rezultat);
             }
 
@@ -237,10 +211,9 @@ namespace PrezentacioniSloj.Controllers
             }
 
             rezultati = Filtriraj(rezultati, odDatuma, doDatuma, predmet, tip);
-            return View(rezultati);   // returns Views/Takmicenje/Stampaj.cshtml (or wherever it is)
+            return View(rezultati); 
         }
 
-        // Shared filter logic
         private List<RezultatViewModel> Filtriraj(
             List<RezultatViewModel> lista,
             DateTime? odDatuma,
@@ -286,12 +259,12 @@ namespace PrezentacioniSloj.Controllers
             .GetFromJsonAsync<List<PredmetViewModel>>("api/Predmet")
             ?? new List<PredmetViewModel>();
 
+            ViewBag.SelektovanPredmet = takmicenjeModel.NazivPredmetaTakmicenja;
+
             return View(takmicenjeModel);
         }
 
         // POST: Takmicenje/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Izmeni(int id, [Bind("ID,DatumTakmicenja,NazivPredmetaTakmicenja,NazivTakmicenja,TipTakmicenja,LokacijaTakmicenja,KorisnikID")] TakmicenjeViewModel takmicenjeModel)

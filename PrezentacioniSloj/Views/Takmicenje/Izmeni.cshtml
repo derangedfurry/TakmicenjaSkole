@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Izmeni";
     var predmeti = ViewBag.Predmeti as List<PredmetViewModel> ?? new List<PredmetViewModel>();
+	var selektovaniPredmet = Model.NazivPredmetaTakmicenja;
 }
 
 <h1>Izmeni takmičenje</h1>
@@ -12,16 +13,17 @@
 <form asp-action="Izmeni" method="post" id="takmicenjeEditForm" novalidate>
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    @* ID must be posted *@
-    <input type="hidden" asp-for="ID" />
 
+    <input type="hidden" asp-for="ID" />
+	<input type="hidden" asp-for="KorisnikID" />
     <div class="card mb-4">
         <div class="card-header">Podaci o takmičenju</div>
         <div class="card-body">
             <div class="row">
+
                 <div class="col-md-6 mb-3">
                     <label asp-for="ID" class="form-label"></label>
-                    <input asp-for="ID" class="form-control" disabled />
+                    <input asp-for="ID" class="form-control" disabled value="@Model.ID" />
                 </div>
 
                 <div class="col-md-6 mb-3">

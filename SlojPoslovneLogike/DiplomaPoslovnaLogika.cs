@@ -121,7 +121,7 @@ namespace SlojPoslovneLogike
                     if (postojeca.Nagrada != nagrada.BrojNagrade)
                     {
                         postojeca.Nagrada = nagrada.BrojNagrade;
-                        diplomaRepo.Izmeni(postojeca);   // or Update / Save
+                        diplomaRepo.Izmeni(postojeca.ID, postojeca);   // or Update / Save
 
                         Debug.WriteLine(
                             $"Ažurirana diploma ID={postojeca.ID}: Učenik={ucenik.ID}, " +

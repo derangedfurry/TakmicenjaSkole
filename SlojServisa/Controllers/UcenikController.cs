@@ -65,9 +65,12 @@ namespace SlojServisa.Controllers
                     u.DiplomaID = diplomaId;
                 else
                     u.DiplomaID = 0;
+
+                Debug.WriteLine($"ucenik diploma ID = {u.DiplomaID}");
+
             }
 
-            return Ok(ucenici);
+            return Ok(uceniciViewModel);
         }
 
 
@@ -248,9 +251,11 @@ namespace SlojServisa.Controllers
                     u.DiplomaID = diplomaId;
                 else
                     u.DiplomaID = 0;
+
+                Debug.WriteLine($"ucenik diploma ID = {u.DiplomaID}");
             }
 
-            return Ok(ucenici);
+            return Ok(uceniciViewModel);
         }
     }
 }

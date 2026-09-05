@@ -10,10 +10,9 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Izmeni" asp-route-id="@Model.ID" method="post" id="predmetEditForm" novalidate>
+        <form asp-action="Izmeni" asp-route-id="@Model.ID" method="post" id="predmetEditForma" novalidate>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            @* Hidden field so ID is posted (disabled inputs are not submitted) *@
             <input type="hidden" asp-for="ID" />
 
             <div class="form-group mb-3">

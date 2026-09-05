@@ -16,6 +16,8 @@ namespace PrezentacioniSloj.ViewModel
         public string KorisnickoIme { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email je obavezan")]
+        [DataType(DataType.EmailAddress)]
+        [RegularExpression(@"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$", ErrorMessage = "Email nije u ispravnom formatu")]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Lozinka je obavezna")]
