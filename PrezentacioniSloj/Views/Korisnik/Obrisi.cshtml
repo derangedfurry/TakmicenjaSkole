@@ -54,7 +54,7 @@
         </dd>
     </dl>
     
-    <form asp-action="Obrisi">
+    <form asp-action="Obrisi" asp-route-id="@Model.ID">
         <input type="submit" value="Obrisi" class="btn btn-danger" /> |
         <a asp-action="Index">Nazad na listu</a>
     </form>

@@ -1,137 +1,96 @@
 ﻿using BibliotekaKlasa.TehnoloskeKlase;
-using Microsoft.Data.SqlClient;
 using SlojPodataka.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data;
 
 namespace SlojPodataka.Repozitorijum
 {
     public class DiplomaRepo : TabelaKlasa
     {
-        private KonekcijaKlasa konekcija {get; set; }
+        private readonly KonekcijaKlasa _konekcija;
 
         public DiplomaRepo(KonekcijaKlasa konekcija) : base(konekcija, "Diploma")
         {
-            this.konekcija = konekcija;
+            _konekcija = konekcija;
         }
 
         public bool Dodaj(DiplomaModel diplomaModel)
         {
-            konekcija.OtvoriKonekciju();
-            string upit = "INSERT INTO Diploma (IDUcenika, Nagrada) VALUES (@IDUcenika, @Nagrada)";
+            string upit =
+                $"INSERT INTO Diploma (IDUcenika, Nagrada) " +
+                $"VALUES ({diplomaModel.IDUcenika}, {diplomaModel.Nagrada})";
 
-            using SqlCommand komanda = new SqlCommand(upit, konekcija.DajKonekciju());
-            komanda.Parameters.AddWithValue("@IDUcenika", diplomaModel.IDUcenika);
-            komanda.Parameters.AddWithValue("@Nagrada", diplomaModel.Nagrada);
-            komanda.ExecuteNonQuery();
-            konekcija.ZatvoriKonekciju();
-            return true;
+            return IzvrsiAzuriranje(upit);
         }
 
         public bool Obrisi(int id)
         {
-            konekcija.OtvoriKonekciju();
-            string upit = "DELETE FROM Diploma WHERE ID = @ID";
-            using SqlCommand komanda = new SqlCommand(upit, konekcija.DajKonekciju());
-            komanda.Parameters.AddWithValue("@ID", id);
-            komanda.ExecuteNonQuery();
-            konekcija.ZatvoriKonekciju();
-            return true;
+            string upit = $"DELETE FROM Diploma WHERE ID = {id}";
+            return IzvrsiAzuriranje(upit);
         }
 
-        public bool Izmeni(int id,DiplomaModel diplomaModel)
+        public bool Izmeni(int id, DiplomaModel diplomaModel)
         {
-            konekcija.OtvoriKonekciju();
-            string upit = "UPDATE Diploma SET IDUcenika = @IDUcenika, Nagrada = @Nagrada WHERE ID = @ID";
-            using SqlCommand komanda = new SqlCommand(upit, konekcija.DajKonekciju());
-            komanda.Parameters.AddWithValue("@ID", id);
-            komanda.Parameters.AddWithValue("@IDUcenika", diplomaModel.IDUcenika);
-            komanda.Parameters.AddWithValue("@Nagrada", diplomaModel.Nagrada);
-            komanda.ExecuteNonQuery();
-            konekcija.ZatvoriKonekciju();
-            return true;
+            string upit =
+                $"UPDATE Diploma SET " +
+                $"IDUcenika = {diplomaModel.IDUcenika}, " +
+                $"Nagrada = {diplomaModel.Nagrada} " +
+                $"WHERE ID = {id}";
+
+            return IzvrsiAzuriranje(upit);
         }
 
-        /*var diplome = await _context.DiplomaModelObjektiDBSet
-    .Select(d => new { d.ID, d.IDUcenika, d.Nagrada })
-    .ToListAsync();*/
         public List<DiplomaModel> DajSve()
         {
             List<DiplomaModel> diplome = new List<DiplomaModel>();
 
-            konekcija.OtvoriKonekciju();
-            string upit = "SELECT * FROM Diploma";
-            using SqlCommand komanda = new SqlCommand(upit, konekcija.DajKonekciju());
-            using SqlDataReader reader = komanda.ExecuteReader();
-            while (reader.Read())
-            {
-                diplome.Add(new DiplomaModel
-                {
-                    ID = reader.GetInt32(0),
-                    IDUcenika = reader.GetInt32(1),
-                    Nagrada = reader.GetInt32(2)
-                });
+            DataSet ds = DajPodatke("SELECT ID, IDUcenika, Nagrada FROM Diploma");
+            DataTable tabela = ds.Tables[0];
 
-                int id = reader.GetInt32(0);
-                int ucenikId = reader.GetInt32(1);
-                int takmicenjeId = reader.GetInt32(2);
-                Console.WriteLine($"ID: {id}, IDUcenika: {ucenikId}, Nagrada: {takmicenjeId}");
+            foreach (DataRow red in tabela.Rows)
+            {
+                diplome.Add(MapirajRed(red));
             }
-            konekcija.ZatvoriKonekciju();
+
             return diplome;
         }
 
-
-        public DiplomaModel DajPoId(int id)
+        public DiplomaModel? DajPoId(int id)
         {
-            DiplomaModel diploma = new DiplomaModel();
-            konekcija.OtvoriKonekciju();
-            string upit = "SELECT * FROM Diploma WHERE ID = @ID";
-            using SqlCommand komanda = new SqlCommand(upit, konekcija.DajKonekciju());
-            komanda.Parameters.AddWithValue("@ID", id);
-            using SqlDataReader reader = komanda.ExecuteReader();
-            while (reader.Read())
-            {
-                diploma.ID = reader.GetInt32(0);
-                diploma.IDUcenika = reader.GetInt32(1);
-                diploma.Nagrada = reader.GetInt32(2);
-            }
-            konekcija.ZatvoriKonekciju();
-            return diploma;
+            DataSet ds = DajPodatke(
+                $"SELECT ID, IDUcenika, Nagrada FROM Diploma WHERE ID = {id}");
+
+            DataTable tabela = ds.Tables[0];
+            if (tabela.Rows.Count == 0)
+                return null;
+
+            return MapirajRed(tabela.Rows[0]);
         }
 
-        public DiplomaModel DajPoUceniku(int ucenikId)
+        public DiplomaModel? DajPoUceniku(int ucenikId)
         {
-            DiplomaModel diploma = new DiplomaModel();
-            konekcija.OtvoriKonekciju();
-            string upit = "SELECT * FROM Diploma WHERE IDUcenika = @IDUcenika";
-            using SqlCommand komanda = new SqlCommand(upit, konekcija.DajKonekciju());
-            komanda.Parameters.AddWithValue("@IDUcenika", ucenikId);
-            using SqlDataReader reader = komanda.ExecuteReader();
-            while (reader.Read())
-            {
-                diploma.ID = reader.GetInt32(0);
-                diploma.IDUcenika = reader.GetInt32(1);
-                diploma.Nagrada = reader.GetInt32(2);
-            }
-            konekcija.ZatvoriKonekciju();
-            return diploma;
+            DataSet ds = DajPodatke(
+                $"SELECT ID, IDUcenika, Nagrada FROM Diploma WHERE IDUcenika = {ucenikId}");
+
+            DataTable tabela = ds.Tables[0];
+            if (tabela.Rows.Count == 0)
+                return null;
+
+            return MapirajRed(tabela.Rows[0]);
         }
 
         public bool Postoji(int id)
         {
-            DiplomaModel diploma = DajPoId(id);
-
-            if (diploma != null)
-            {
-                return true;
-            }
-            else return false;
-
+            return DajPoId(id) != null;
         }
 
+        private static DiplomaModel MapirajRed(DataRow red)
+        {
+            return new DiplomaModel
+            {
+                ID = Convert.ToInt32(red["ID"]),
+                IDUcenika = Convert.ToInt32(red["IDUcenika"]),
+                Nagrada = Convert.ToInt32(red["Nagrada"])
+            };
+        }
     }
 }

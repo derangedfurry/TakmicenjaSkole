@@ -6,12 +6,12 @@
     var doDatuma = Context.Request.Query["doDatuma"].ToString();
     var predmet = Context.Request.Query["predmet"].ToString();
     var tip = Context.Request.Query["tip"].ToString();
-    var isLoggedIn = !string.IsNullOrEmpty(Context.Session.GetString("KorisnikId"));
+    var Prijavljen = !string.IsNullOrEmpty(Context.Session.GetString("KorisnikId"));
 }
 
 <h1>Rezultati takmičenja</h1>
 
-<!-- ==================== FILTERS ==================== -->
+
 <form asp-action="Rezultati" method="get" class="card card-body mb-4">
     <div class="row g-3">
         <div class="col-md-3">
@@ -48,7 +48,7 @@
     </div>
 </form>
 
-<!-- ==================== ACCORDION ==================== -->
+
 @if (Model == null || !Model.Any())
 {
     <div class="alert alert-info">Nema takmičenja za prikaz.</div>
@@ -117,7 +117,7 @@ else
                                         <th class="text-center">Ime</th>
                                         <th class="text-center">Prezime</th>
                                         <th class="text-center">Broj bodova</th>
-                                        @if (isLoggedIn)
+                                        @if (Prijavljen)
                                         {
                                             <th class="text-center">Diploma</th>
                                         }
@@ -131,7 +131,7 @@ else
                                             <td class="text-center">@ucenik.Ime</td>
                                             <td class="text-center">@ucenik.Prezime</td>
                                             <td class="text-center">@ucenik.BrojBodova</td>
-                                            @if (isLoggedIn)
+                                            @if (Prijavljen)
                                             {
                                                 <td class="text-center">
                                                     @if (ucenik.DiplomaID != 0)

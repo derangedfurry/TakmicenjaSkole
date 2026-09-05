@@ -69,6 +69,8 @@ namespace SlojServisa.Controllers
         {
             var takmicenjeModel = _TakmicenjeRepo.DajPoId(id);
 
+            var predmet = _PredmetRepo.DajPredmetPoID(takmicenjeModel.IDPredmeta);
+
             if (takmicenjeModel == null)
             {
                 return NotFound();
@@ -78,6 +80,7 @@ namespace SlojServisa.Controllers
             {
                 ID = takmicenjeModel.ID,
                 NazivTakmicenja = takmicenjeModel.NazivTakmicenja,
+                NazivPredmetaTakmicenja = predmet?.NazivPredmeta,
                 DatumTakmicenja = takmicenjeModel.DatumTakmicenja,
                 LokacijaTakmicenja = takmicenjeModel.LokacijaTakmicenja,
                 TipTakmicenja = takmicenjeModel.TipTakmicenja,
@@ -88,13 +91,12 @@ namespace SlojServisa.Controllers
         }
 
         // PUT: api/Takmicenje/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> Izmeni(int id, TakmicenjeViewModel takmicenjeModel)
         {
 
             TakmicenjeModel takmicenje = await _context.TakmicenjaModelObjektiDBSet.FindAsync(id);
-
+            PredmetModel predmet = _PredmetRepo.DajPredmetPoNazivu(takmicenjeModel.NazivPredmetaTakmicenja);
             if (takmicenje == null)
             {
                 return NotFound();
@@ -103,6 +105,7 @@ namespace SlojServisa.Controllers
                 TakmicenjeModel takmicenjeSaIzmenama = new TakmicenjeModel
                 {
                     ID = takmicenjeModel.ID,
+                    IDPredmeta = predmet.ID,
                     NazivTakmicenja = takmicenjeModel.NazivTakmicenja,
                     DatumTakmicenja = takmicenjeModel.DatumTakmicenja,
                     LokacijaTakmicenja = takmicenjeModel.LokacijaTakmicenja,
@@ -113,32 +116,13 @@ namespace SlojServisa.Controllers
                 _TakmicenjeRepo.Izmeni(id, takmicenjeSaIzmenama);
 
 
-                _context.Entry(takmicenje).State = EntityState.Modified;
-            }
 
-
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!Postoji(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
             }
 
             return Ok();
         }
 
         // POST: api/Takmicenje
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<IActionResult> Dodaj(TakmicenjeViewModel takmicenjeModel)
         {

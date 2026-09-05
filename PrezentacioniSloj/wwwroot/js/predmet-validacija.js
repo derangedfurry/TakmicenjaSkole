@@ -1,93 +1,94 @@
 ﻿(function ()
 {
-    function showError(input, message)
+    function prikaziGresku(unos, poruka)
     {
-        input.classList.add("is-invalid");
-        let span = input.parentElement.querySelector(".js-validation-error");
-        if (!span) {
-            span = document.createElement("span");
-            span.className = "text-danger js-validation-error d-block";
-            input.parentElement.appendChild(span);
+        unos.classList.add("neispravno");
+        let greska = unos.parentElement.querySelector(".js-greska-validacije");
+        if (!greska) {
+            greska = document.createElement("span");
+            greska.className = "text-danger js-greska-validacije d-block";
+            unos.parentElement.appendChild(greska);
         }
-        span.textContent = message;
+        greska.textContent = poruka;
     }
 
-    function clearError(input)
+    function obrisiGresku(unos)
     {
-        input.classList.remove("is-invalid");
-        const span = input.parentElement.querySelector(".js-validation-error");
-        if (span) span.textContent = "";
+        unos.classList.remove("neispravno");
+        const greska = unos.parentElement.querySelector(".js-greska-validacije");
+        if (greska) greska.textContent = "";
     }
 
-    async function nazivExists(naziv)
+    async function nazivPostoji(naziv)
     {
         const url = "/Predmet/ProveriNaziv?naziv=" + encodeURIComponent(naziv);
-        // If calling API directly, use your API base URL instead
-        const response = await fetch(url);
-        if (!response.ok) return false;
-        const data = await response.json();
-        return data.exists === true;
+        const odgovor = await fetch(url);
+        if (!odgovor.ok) return false;
+        const podaci = await odgovor.json();
+        return podaci.exists === true;
     }
 
-    function validateId(input)
+    function validirajId(unos)
     {
-        const value = (input.value || "").trim();
-        if (!value) {
-            showError(input, "Id predmeta je obavezan");
+        const vrednost = (unos.value || "").trim();
+
+        if (!vrednost) {
+            prikaziGresku(unos, "Id predmeta je obavezan");
             return false;
         }
-        if (value.length !== 5) {
-            showError(input, "ID predmeta mora imati tačno 5 karaktera");
+        if (vrednost.length !== 5) {
+            prikaziGresku(unos, "ID predmeta mora imati tačno 5 karaktera");
             return false;
         }
-        clearError(input);
+
+        obrisiGresku(unos);
         return true;
     }
 
-    async function validateNaziv(input)
+    async function validirajNaziv(unos)
     {
-        const value = (input.value || "").trim();
-        if (!value) {
-            showError(input, "Naziv predmeta je obavezan");
+        const vrednost = (unos.value || "").trim();
+
+        if (!vrednost) {
+            prikaziGresku(unos, "Naziv predmeta je obavezan");
             return false;
         }
 
         try {
-            const exists = await nazivExists(value);
-            if (exists) {
-                showError(input, "Predmet sa ovim nazivom već postoji");
+            const postoji = await nazivPostoji(vrednost);
+            if (postoji) {
+                prikaziGresku(unos, "Predmet sa ovim nazivom već postoji");
                 return false;
             }
         } catch {
-            // network error – don’t block hard, or show a message
-            showError(input, "Greška pri proveri naziva");
+            prikaziGresku(unos, "Greška pri proveri naziva");
             return false;
         }
 
-        clearError(input);
+        obrisiGresku(unos);
         return true;
     }
 
     document.addEventListener("DOMContentLoaded", function ()
     {
-        const form = document.getElementById("predmetForm");
-        if (!form) return;
+        const forma = document.getElementById("predmetForma");
+        if (!forma) return;
 
-        const idInput = form.querySelector('[name="ID"]');
-        const nazivInput = form.querySelector('[name="NazivPredmeta"]');
+        const idUnos = forma.querySelector('[name="ID"]');
+        const nazivUnos = forma.querySelector('[name="NazivPredmeta"]');
 
-        idInput?.addEventListener("blur", () => validateId(idInput));
-        nazivInput?.addEventListener("blur", () => validateNaziv(nazivInput));
+        idUnos?.addEventListener("blur", () => validirajId(idUnos));
+        nazivUnos?.addEventListener("blur", () => validirajNaziv(nazivUnos));
 
-        form.addEventListener("submit", async function (e)
+        forma.addEventListener("submit", async function (e)
         {
             e.preventDefault();
 
-            const idOk = validateId(idInput);
-            const nazivOk = await validateNaziv(nazivInput);
+            const idIspravan = validirajId(idUnos);
+            const nazivIspravan = await validirajNaziv(nazivUnos);
 
-            if (idOk && nazivOk) {
-                form.submit();
+            if (idIspravan && nazivIspravan) {
+                forma.submit();
             }
         });
     });

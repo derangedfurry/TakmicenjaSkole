@@ -53,8 +53,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: Diploma/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Dodaj([Bind("ID,Nagrada,NazivNagrade,ImeUcenika,PrezimeUcenika,IDUcenika")] DiplomaViewModel diplomaModel)
@@ -87,8 +85,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: Diploma/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Izmeni(int id, [Bind("ID,Nagrada,NazivNagrade,ImeUcenika,PrezimeUcenika")] DiplomaViewModel diplomaModel)

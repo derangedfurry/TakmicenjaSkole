@@ -10,11 +10,10 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Izmeni" method="post" id="ucenikEditForm" novalidate>
+        <form asp-action="Izmeni" method="post" id="ucenikIzmenaForma" novalidate>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            @* ID must be posted – disabled inputs are not submitted *@
-            <input type="hidden" asp-for="ID" id="ucenikIdHidden" />
+            <input type="hidden" asp-for="ID" id="ucenikIdSakriven" />
 
             <div class="form-group mb-3">
                 <label asp-for="ID" class="control-label"></label>
@@ -28,19 +27,21 @@
                        class="form-control"
                        maxlength="5"
                        minlength="5"
-                       required />
+                       required 
+                       value="@Model.SifraUcenika"
+                       />
                 <span asp-validation-for="SifraUcenika" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
                 <label asp-for="Ime" class="control-label"></label>
-                <input asp-for="Ime" class="form-control" required />
+                <input asp-for="Ime" class="form-control" required value="@Model.Ime"/>
                 <span asp-validation-for="Ime" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
                 <label asp-for="Prezime" class="control-label"></label>
-                <input asp-for="Prezime" class="form-control" required />
+                <input asp-for="Prezime" class="form-control" required value="@Model.Prezime"/>
                 <span asp-validation-for="Prezime" class="text-danger"></span>
             </div>
 
@@ -51,17 +52,15 @@
                        type="number"
                        min="0"
                        max="100"
-                       required />
+                       required 
+                       value="@Model.BrojBodova"
+                       />
                 <span asp-validation-for="BrojBodova" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
                 <label asp-for="IDTakmicenja" class="control-label"></label>
-                <input asp-for="IDTakmicenja"
-                       class="form-control"
-                       type="number"
-                       min="1"
-                       required />
+                <input asp-for="IDTakmicenja" class="form-control" required hidden value="@Model.IDTakmicenja"/>
                 <span asp-validation-for="IDTakmicenja" class="text-danger"></span>
             </div>
 
@@ -78,5 +77,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/ucenik-edit-validation.js" asp-append-version="true"></script>
+    <script src="~/js/ucenik-izmena-validacija.js" asp-append-version="true"></script>
 }

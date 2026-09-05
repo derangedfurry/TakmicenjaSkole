@@ -1,77 +1,77 @@
 ﻿(function ()
 {
-    function showError(input, message)
+    function prikaziGresku(unos, poruka)
     {
-        input.classList.add("is-invalid");
-        let span = input.parentElement.querySelector(".js-validation-error");
-        if (!span) {
-            span = document.createElement("span");
-            span.className = "text-danger js-validation-error d-block";
-            input.parentElement.appendChild(span);
+        unos.classList.add("neispravno");
+        let greska = unos.parentElement.querySelector(".js-greska-validacije");
+        if (!greska) {
+            greska = document.createElement("span");
+            greska.className = "text-danger js-greska-validacije d-block";
+            unos.parentElement.appendChild(greska);
         }
-        span.textContent = message;
+        greska.textContent = poruka;
     }
 
-    function clearError(input)
+    function obrisiGresku(unos)
     {
-        input.classList.remove("is-invalid");
-        const span = input.parentElement.querySelector(".js-validation-error");
-        if (span) span.textContent = "";
+        unos.classList.remove("neispravno");
+        const greska = unos.parentElement.querySelector(".js-greska-validacije");
+        if (greska) greska.textContent = "";
     }
 
-    async function nazivExists(naziv, excludeId)
+    async function nazivPostoji(naziv, id)
     {
         let url = "/Predmet/ProveriNaziv?naziv=" + encodeURIComponent(naziv);
-        if (excludeId) {
-            url += "&excludeId=" + encodeURIComponent(excludeId);
+        if (id) {
+            url += "&id=" + encodeURIComponent(id);
         }
-        const response = await fetch(url);
-        if (!response.ok) return false;
-        const data = await response.json();
-        return data.exists === true;
+        const odgovor = await fetch(url);
+        if (!odgovor.ok) return false;
+        const podaci = await odgovor.json();
+        return podaci.exists === true;
     }
 
-    async function validateNaziv(input, excludeId)
+    async function validirajNaziv(unos, id)
     {
-        const value = (input.value || "").trim();
-        if (!value) {
-            showError(input, "Naziv predmeta je obavezan");
+        const vrednost = (unos.value || "").trim();
+
+        if (!vrednost) {
+            prikaziGresku(unos, "Naziv predmeta je obavezan");
             return false;
         }
 
         try {
-            const exists = await nazivExists(value, excludeId);
-            if (exists) {
-                showError(input, "Predmet sa ovim nazivom već postoji");
+            const postoji = await nazivPostoji(vrednost, id);
+            if (postoji) {
+                prikaziGresku(unos, "Predmet sa ovim nazivom već postoji");
                 return false;
             }
         } catch {
-            showError(input, "Greška pri proveri naziva");
+            prikaziGresku(unos, "Greška pri proveri naziva");
             return false;
         }
 
-        clearError(input);
+        obrisiGresku(unos);
         return true;
     }
 
     document.addEventListener("DOMContentLoaded", function ()
     {
-        const form = document.getElementById("predmetEditForm");
-        if (!form) return;
+        const forma = document.getElementById("predmetIzmenaForma");
+        if (!forma) return;
 
-        const idInput = form.querySelector('[name="ID"]');
-        const nazivInput = form.querySelector('[name="NazivPredmeta"]');
-        const excludeId = idInput ? idInput.value : null;
+        const idUnos = forma.querySelector('[name="ID"]');
+        const nazivUnos = forma.querySelector('[name="NazivPredmeta"]');
+        const id = idUnos ? idUnos.value : null;
 
-        nazivInput?.addEventListener("blur", () => validateNaziv(nazivInput, excludeId));
+        nazivUnos?.addEventListener("blur", () => validirajNaziv(nazivUnos, id));
 
-        form.addEventListener("submit", async function (e)
+        forma.addEventListener("submit", async function (e)
         {
             e.preventDefault();
-
-            const nazivOk = await validateNaziv(nazivInput, excludeId);
-            if (nazivOk) {
-                form.submit();
+            const nazivIspravan = await validirajNaziv(nazivUnos, id);
+            if (nazivIspravan) {
+                forma.submit();
             }
         });
     });

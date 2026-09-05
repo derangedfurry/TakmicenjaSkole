@@ -49,7 +49,7 @@ namespace SlojServisa.Controllers
              */
             return Ok(predmeti);
         }
-        //Single
+
         // GET: api/Predmet/5
         [HttpGet("{id}")]
         public async Task<IActionResult> DajPoId(string id)
@@ -71,8 +71,6 @@ namespace SlojServisa.Controllers
             return Ok(predmetModel);
         }
         //Edit
-        // PUT: api/Predmet/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> Izmeni(string id, PredmetViewModel predmetModel)
         {
@@ -100,10 +98,9 @@ namespace SlojServisa.Controllers
                 _PredmetRepo.Izmeni(id, predmetSaIzmenama);
 
 
-                _context.Entry(predmet).State = EntityState.Modified;
             }
 
-            try
+            /*try
             {
                 await _context.SaveChangesAsync();
             }
@@ -117,13 +114,11 @@ namespace SlojServisa.Controllers
                 {
                     throw;
                 }
-            }
+            }*/
 
             return Ok();
         }
         //Create
-        // POST: api/Predmet
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<IActionResult> Dodaj(PredmetViewModel predmetModel)
         {
@@ -134,21 +129,6 @@ namespace SlojServisa.Controllers
             };
 
             _PredmetRepo.Dodaj(predmet);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (Postoji(predmetModel.ID))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
             return Ok();
         }
@@ -164,7 +144,6 @@ namespace SlojServisa.Controllers
             }
 
             _PredmetRepo.Obrisi(id);
-            await _context.SaveChangesAsync();
 
             return Ok();
         }

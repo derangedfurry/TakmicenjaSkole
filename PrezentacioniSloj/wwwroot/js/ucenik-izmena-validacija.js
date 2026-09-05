@@ -1,139 +1,140 @@
 ﻿(function ()
 {
-    function showError(input, message)
+    function prikaziGresku(unos, poruka)
     {
-        input.classList.add("is-invalid");
-        let span = input.parentElement.querySelector(".js-validation-error");
-        if (!span) {
-            span = document.createElement("span");
-            span.className = "text-danger js-validation-error d-block";
-            input.parentElement.appendChild(span);
+        unos.classList.add("neispravno");
+        let greska = unos.parentElement.querySelector(".js-greska-validacije");
+        if (!greska) {
+            greska = document.createElement("span");
+            greska.className = "text-danger js-greska-validacije d-block";
+            unos.parentElement.appendChild(greska);
         }
-        span.textContent = message;
+        greska.textContent = poruka;
     }
 
-    function clearError(input)
+    function obrisiGresku(unos)
     {
-        input.classList.remove("is-invalid");
-        const span = input.parentElement.querySelector(".js-validation-error");
-        if (span) span.textContent = "";
+        unos.classList.remove("neispravno");
+        const greska = unos.parentElement.querySelector(".js-greska-validacije");
+        if (greska) greska.textContent = "";
     }
 
-    async function sifraExists(sifra, excludeId)
+    async function sifraPostoji(sifra, iskljuciId)
     {
         let url = "/Ucenik/ProveriSifru?sifra=" + encodeURIComponent(sifra);
-        if (excludeId) url += "&excludeId=" + encodeURIComponent(excludeId);
-        const response = await fetch(url);
-        if (!response.ok) return false;
-        const data = await response.json();
-        return data.exists === true;
+        if (iskljuciId) {
+            url += "&excludeId=" + encodeURIComponent(iskljuciId);
+        }
+        const odgovor = await fetch(url);
+        if (!odgovor.ok) return false;
+        const podaci = await odgovor.json();
+        return podaci.exists === true;
     }
 
-    function validateSifraFormat(input)
+    function validirajFormatSifre(unos)
     {
-        const value = (input.value || "").trim();
-        if (!value) {
-            showError(input, "Šifra učenika je obavezna");
+        const vrednost = (unos.value || "").trim();
+
+        if (!vrednost) {
+            prikaziGresku(unos, "Šifra učenika je obavezna");
             return false;
         }
-        if (value.length !== 5) {
-            showError(input, "Šifra učenika mora imati tačno 5 karaktera.");
+        if (vrednost.length !== 5) {
+            prikaziGresku(unos, "Šifra učenika mora imati tačno 5 karaktera.");
             return false;
         }
-        clearError(input);
+
+        obrisiGresku(unos);
         return true;
     }
 
-    async function validateSifra(input, excludeId)
+    async function validirajSifru(unos, iskljuciId)
     {
-        if (!validateSifraFormat(input)) return false;
+        if (!validirajFormatSifre(unos)) return false;
+
         try {
-            if (await sifraExists(input.value.trim(), excludeId)) {
-                showError(input, "Učenik sa ovom šifrom već postoji");
+            const postoji = await sifraPostoji(unos.value.trim(), iskljuciId);
+            if (postoji) {
+                prikaziGresku(unos, "Učenik sa ovom šifrom već postoji");
                 return false;
             }
         } catch {
-            showError(input, "Greška pri proveri šifre");
+            prikaziGresku(unos, "Greška pri proveri šifre");
             return false;
         }
-        clearError(input);
+
+        obrisiGresku(unos);
         return true;
     }
 
-    function validateRequired(input, message)
+    function validirajObavezno(unos, poruka)
     {
-        if (!(input.value || "").trim()) {
-            showError(input, message);
+        if (!(unos.value || "").trim()) {
+            prikaziGresku(unos, poruka);
             return false;
         }
-        clearError(input);
+        obrisiGresku(unos);
         return true;
     }
 
-    function validateBodovi(input)
+    function validirajBodove(unos)
     {
-        if (input.value === "") {
-            showError(input, "Broj bodova je obavezan");
+        if (unos.value === "") {
+            prikaziGresku(unos, "Broj bodova je obavezan");
             return false;
         }
-        const n = Number(input.value);
-        if (isNaN(n) || n < 0 || n > 100) {
-            showError(input, "Broj bodova mora biti između 0 i 100.");
+        const broj = Number(unos.value);
+        if (isNaN(broj) || broj < 0 || broj > 100) {
+            prikaziGresku(unos, "Broj bodova mora biti između 0 i 100.");
             return false;
         }
-        clearError(input);
+        obrisiGresku(unos);
         return true;
     }
 
-    function validateTakmicenje(input)
+    function validirajTakmicenje(unos)
     {
-        if (!input.value || input.value === "0") {
-            showError(input, "Takmičenje je obavezno");
+        if (!unos.value || unos.value === "0") {
+            prikaziGresku(unos, "Takmičenje je obavezno");
             return false;
         }
-        clearError(input);
+        obrisiGresku(unos);
         return true;
     }
 
     document.addEventListener("DOMContentLoaded", function ()
     {
-        const form = document.getElementById("ucenikEditForm");
-        if (!form) return;
+        const forma = document.getElementById("ucenikIzmenaForma");
+        if (!forma) return;
 
-        const idInput = form.querySelector('#ucenikIdHidden') || form.querySelector('[name="ID"]');
-        const sifra = form.querySelector('[name="SifraUcenika"]');
-        const ime = form.querySelector('[name="Ime"]');
-        const prezime = form.querySelector('[name="Prezime"]');
-        const bodovi = form.querySelector('[name="BrojBodova"]');
-        const takmicenje = form.querySelector('[name="IDTakmicenja"]');
-        const excludeId = idInput ? idInput.value : null;
+        const idUnos = forma.querySelector("#ucenikIdSakriven") || forma.querySelector('[name="ID"]');
+        const sifra = forma.querySelector('[name="SifraUcenika"]');
+        const ime = forma.querySelector('[name="Ime"]');
+        const prezime = forma.querySelector('[name="Prezime"]');
+        const bodovi = forma.querySelector('[name="BrojBodova"]');
+        const takmicenje = forma.querySelector('[name="IDTakmicenja"]');
+        const iskljuciId = idUnos ? idUnos.value : null;
 
-        sifra?.addEventListener("blur", () => validateSifra(sifra, excludeId));
-        ime?.addEventListener("blur", () => validateRequired(ime, "Ime učenika je obavezno"));
-        prezime?.addEventListener("blur", () => validateRequired(prezime, "Prezime učenika je obavezno"));
-        bodovi?.addEventListener("blur", () => validateBodovi(bodovi));
-        takmicenje?.addEventListener("blur", () => validateTakmicenje(takmicenje));
+        sifra?.addEventListener("blur", () => validirajSifru(sifra, iskljuciId));
+        ime?.addEventListener("blur", () => validirajObavezno(ime, "Ime učenika je obavezno"));
+        prezime?.addEventListener("blur", () => validirajObavezno(prezime, "Prezime učenika je obavezno"));
+        bodovi?.addEventListener("blur", () => validirajBodove(bodovi));
+        takmicenje?.addEventListener("change", () => validirajTakmicenje(takmicenje));
 
-        form.addEventListener("submit", async function (e)
+        forma.addEventListener("submit", async function (e)
         {
             e.preventDefault();
 
-            const ok =
-                await validateSifra(sifra, excludeId) &
-                validateRequired(ime, "Ime učenika je obavezno") &
-                validateRequired(prezime, "Prezime učenika je obavezno") &
-                validateBodovi(bodovi) &
-                validateTakmicenje(takmicenje);
+            const sveIspravno =
+                (await validirajSifru(sifra, iskljuciId)) &&
+                validirajObavezno(ime, "Ime učenika je obavezno") &&
+                validirajObavezno(prezime, "Prezime učenika je obavezno") &&
+                validirajBodove(bodovi) &&
+                validirajTakmicenje(takmicenje);
 
-            // use && properly
-            const allOk =
-                (await validateSifra(sifra, excludeId)) &&
-                validateRequired(ime, "Ime učenika je obavezno") &&
-                validateRequired(prezime, "Prezime učenika je obavezno") &&
-                validateBodovi(bodovi) &&
-                validateTakmicenje(takmicenje);
-
-            if (allOk) form.submit();
+            if (sveIspravno) {
+                forma.submit();
+            }
         });
     });
 })();

@@ -92,7 +92,6 @@ namespace SlojPodataka.Repozitorijum
                     Prezime = u.Prezime,
                     BrojBodova = u.BrojBodova,
                     IDTakmicenja = u.IDTakmicenja
-                    // DiplomaID set below
                 })
                 .ToListAsync();
 

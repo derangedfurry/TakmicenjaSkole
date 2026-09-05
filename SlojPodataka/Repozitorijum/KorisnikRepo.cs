@@ -81,29 +81,14 @@ namespace SlojPodataka.Repozitorijum
             return korisnik;
         }
 
-        /*public KorisnikModel DajKorisnikaPoEmailuISifri(string email, string sifra)
-        {
-            if (!DaLiPostojiKorisnikSaEmailom(email))
-                return null;
-
-            KorisnikModel korisnik = kontekst.KorisnikModelObjektiDBSet.First(k => k.Email == email);
-
-                bool provera = FunkcijeLozinke.ProveriLozinku(sifra, korisnik.PasswordSalt.ToString(), korisnik.PasswordHash.ToString());
-
-                if (provera)
-                {
-                    return korisnik;
-                }
-                else
-                {
-                    return null;
-                }
-        }*/
-
         public bool DaLiPostojiKorisnikSaEmailom(string email)
         {
             return kontekst.KorisnikModelObjektiDBSet.Any(k => k.Email == email);
         }
 
+        public bool Postoji(int id)
+        {
+            return kontekst.KorisnikModelObjektiDBSet.Any(e => e.ID == id);
+        }
     }
 }

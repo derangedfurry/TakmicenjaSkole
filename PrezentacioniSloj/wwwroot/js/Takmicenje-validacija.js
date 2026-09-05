@@ -1,40 +1,40 @@
 ﻿(function ()
 {
-    function toDateTimeLocalValue(date)
+    function uDateTimeLocalVrednost(datum)
     {
-        const pad = (n) => n.toString().padStart(2, "0");
-        return date.getFullYear() + "-" +
-            pad(date.getMonth() + 1) + "-" +
-            pad(date.getDate()) + "T" +
-            pad(date.getHours()) + ":" +
-            pad(date.getMinutes());
+        const dopuni = (n) => n.toString().padStart(2, "0");
+        return datum.getFullYear() + "-" +
+            dopuni(datum.getMonth() + 1) + "-" +
+            dopuni(datum.getDate()) + "T" +
+            dopuni(datum.getHours()) + ":" +
+            dopuni(datum.getMinutes());
     }
 
-    function showError(input, message)
+    function prikaziGresku(unos, poruka)
     {
-        input.classList.add("is-invalid");
-        let span = input.parentElement.querySelector(".js-validation-error");
-        if (!span) {
-            span = document.createElement("span");
-            span.className = "text-danger js-validation-error";
-            input.parentElement.appendChild(span);
+        unos.classList.add("neispravno");
+        let greska = unos.parentElement.querySelector(".js-greska-validacije");
+        if (!greska) {
+            greska = document.createElement("span");
+            greska.className = "text-danger js-greska-validacije d-block";
+            unos.parentElement.appendChild(greska);
         }
-        span.textContent = message;
+        greska.textContent = poruka;
     }
 
-    function clearError(input)
+    function obrisiGresku(unos)
     {
-        input.classList.remove("is-invalid");
-        const span = input.parentElement.querySelector(".js-validation-error");
-        if (span) span.textContent = "";
+        unos.classList.remove("neispravno");
+        const greska = unos.parentElement.querySelector(".js-greska-validacije");
+        if (greska) greska.textContent = "";
     }
 
-    function validateForm(form)
+    function validirajFormu(forma)
     {
-        let valid = true;
+        let ispravno = true;
 
-        // Required text / select fields (master)
-        const requiredSelectors = [
+        // Obavezna polja (master – takmičenje)
+        const obavezniSelektor = [
             '[name="Takmicenje.NazivTakmicenja"]',
             '[name="Takmicenje.NazivPredmetaTakmicenja"]',
             '[name="Takmicenje.LokacijaTakmicenja"]',
@@ -42,85 +42,95 @@
             '[name="Takmicenje.DatumTakmicenja"]'
         ];
 
-        requiredSelectors.forEach(sel =>
+        obavezniSelektor.forEach(sel =>
         {
-            const el = form.querySelector(sel);
-            if (!el) return;
-            if (!el.value || !el.value.trim()) {
-                showError(el, "Ovo polje je obavezno.");
-                valid = false;
+            const element = forma.querySelector(sel);
+            if (!element) return;
+
+            if (!element.value || !element.value.trim()) {
+                prikaziGresku(element, "Ovo polje je obavezno.");
+                ispravno = false;
             } else {
-                clearError(el);
+                obrisiGresku(element);
             }
         });
 
-        // Date not in the future
-        const dateInput = form.querySelector('[name="Takmicenje.DatumTakmicenja"]');
-        if (dateInput && dateInput.value) {
-            const selected = new Date(dateInput.value);
-            const now = new Date();
-            if (selected > now) {
-                showError(dateInput, "Datum takmičenja ne može biti u budućnosti.");
-                valid = false;
+        // Datum ne sme biti u budućnosti
+        const datumUnos = forma.querySelector('[name="Takmicenje.DatumTakmicenja"]');
+        if (datumUnos && datumUnos.value) {
+            const izabrani = new Date(datumUnos.value);
+            const sada = new Date();
+            if (izabrani > sada) {
+                prikaziGresku(datumUnos, "Datum takmičenja ne može biti u budućnosti.");
+                ispravno = false;
             }
         }
 
-        // Učenici rows
-        const rows = form.querySelectorAll("#uceniciBody tr");
-        if (rows.length === 0) {
+        // Redovi učenika
+        const redovi = forma.querySelectorAll("#uceniciBody tr");
+        if (redovi.length === 0) {
             alert("Dodajte bar jednog učenika.");
-            valid = false;
+            ispravno = false;
         }
 
-        rows.forEach(row =>
+        redovi.forEach(red =>
         {
-            const sifra = row.querySelector('input[name*="SifraUcenika"]');
-            const ime = row.querySelector('input[name*=".Ime"]');
-            const prezime = row.querySelector('input[name*="Prezime"]');
-            const bodovi = row.querySelector('input[name*="BrojBodova"]');
+            const sifra = red.querySelector('input[name*="SifraUcenika"]');
+            const ime = red.querySelector('input[name*=".Ime"]');
+            const prezime = red.querySelector('input[name*="Prezime"]');
+            const bodovi = red.querySelector('input[name*="BrojBodova"]');
 
             if (sifra) {
                 if (!sifra.value || sifra.value.length !== 5) {
-                    showError(sifra, "Šifra mora imati tačno 5 karaktera.");
-                    valid = false;
-                } else clearError(sifra);
+                    prikaziGresku(sifra, "Šifra mora imati tačno 5 karaktera.");
+                    ispravno = false;
+                } else {
+                    obrisiGresku(sifra);
+                }
             }
+
             if (ime && !ime.value.trim()) {
-                showError(ime, "Ime je obavezno.");
-                valid = false;
-            } else if (ime) clearError(ime);
+                prikaziGresku(ime, "Ime je obavezno.");
+                ispravno = false;
+            } else if (ime) {
+                obrisiGresku(ime);
+            }
 
             if (prezime && !prezime.value.trim()) {
-                showError(prezime, "Prezime je obavezno.");
-                valid = false;
-            } else if (prezime) clearError(prezime);
+                prikaziGresku(prezime, "Prezime je obavezno.");
+                ispravno = false;
+            } else if (prezime) {
+                obrisiGresku(prezime);
+            }
 
             if (bodovi) {
-                const n = Number(bodovi.value);
-                if (bodovi.value === "" || isNaN(n) || n < 0) {
-                    showError(bodovi, "Broj bodova mora biti 0 ili više.");
-                    valid = false;
-                } else clearError(bodovi);
+                const broj = Number(bodovi.value);
+                if (bodovi.value === "" || isNaN(broj) || broj < 0 || broj > 100) {
+                    prikaziGresku(bodovi, "Broj bodova mora biti između 0 i 100.");
+                    ispravno = false;
+                } else {
+                    obrisiGresku(bodovi);
+                }
             }
         });
 
-        return valid;
+        return ispravno;
     }
 
     document.addEventListener("DOMContentLoaded", function ()
     {
-        const form = document.getElementById("masterDetailForm");
-        if (!form) return;
+        const forma = document.getElementById("takmicenjeForma");
+        if (!forma) return;
 
-        // Max datetime-local = now
-        const dateInput = form.querySelector('[name="Takmicenje.DatumTakmicenja"]');
-        if (dateInput) {
-            dateInput.max = toDateTimeLocalValue(new Date());
+        // Maksimalni datetime-local = sada
+        const datumUnos = forma.querySelector('[name="Takmicenje.DatumTakmicenja"]');
+        if (datumUnos) {
+            datumUnos.max = uDateTimeLocalVrednost(new Date());
         }
 
-        form.addEventListener("submit", function (e)
+        forma.addEventListener("submit", function (e)
         {
-            if (!validateForm(form)) {
+            if (!validirajFormu(forma)) {
                 e.preventDefault();
                 e.stopPropagation();
             }

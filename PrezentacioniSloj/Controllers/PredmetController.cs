@@ -61,8 +61,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: Predmet/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Dodaj([Bind("ID,NazivPredmeta")] PredmetViewModel predmetModel)
@@ -117,8 +115,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: Predmet/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Izmeni(string id, [Bind("ID,NazivPredmeta")] PredmetViewModel predmetModel)

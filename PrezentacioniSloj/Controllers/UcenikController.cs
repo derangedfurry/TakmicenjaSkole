@@ -54,8 +54,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: Ucenik/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Dodaj(DodajUcenikaViewModel ucenikModel)
@@ -107,8 +105,6 @@ namespace PrezentacioniSloj.Controllers
         }
 
         // POST: Ucenik/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Izmeni(int id, [Bind("ID,SifraUcenika,Ime,Prezime,BrojBodova,IDTakmicenja")] UcenikViewModel ucenikModel)
@@ -120,8 +116,6 @@ namespace PrezentacioniSloj.Controllers
 
             if (ModelState.IsValid)
             {
-
-
 
                 UcenikViewModel ucenik = await _httpKlient.GetFromJsonAsync<UcenikViewModel>($"api/Ucenik/{id}");
 
